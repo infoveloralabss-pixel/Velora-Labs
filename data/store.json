@@ -1,0 +1,526 @@
+{
+  "projects": [
+    {
+      "id": "proj-1",
+      "slug": "aurora-health-ai-telehealth",
+      "title": "Aurora Health — Next-Gen AI Telehealth Platform",
+      "tagline": "High-throughput React/Node Telehealth Ecosystem with Real-Time Triage",
+      "clientName": "Aurora Health Technologies",
+      "category": "saas",
+      "subCategory": "SaaS Product Engineering & Telemedicine",
+      "services": [
+        "SaaS Architecture",
+        "React & Node.js",
+        "WebRTC Video",
+        "HIPAA Compliance",
+        "UI/UX System"
+      ],
+      "technologies": [
+        "React 19",
+        "Node.js",
+        "PostgreSQL",
+        "TailwindCSS",
+        "WebRTC",
+        "Redis"
+      ],
+      "coverImage": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1400&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=1400&q=80"
+      ],
+      "summary": "Architected and built a multi-tenant clinical consultation platform from ground zero to over 450,000 monthly active patient appointments.",
+      "challenge": "Aurora required an ultra-low latency patient-doctor interface with dynamic clinical intake forms, automated scheduling, and strict regulatory compliance that could handle 10x traffic surges without degradation.",
+      "solution": "Velora Labs engineered a decoupled micro-frontend architecture using modern React, custom WebRTC signaling pipelines, and an asynchronous queue processing system for instant medical records indexing.",
+      "results": [
+        {
+          "metric": "450k+",
+          "label": "Monthly Consultations",
+          "description": "Scaled from zero in under 9 months"
+        },
+        {
+          "metric": "99.99%",
+          "label": "Platform Uptime",
+          "description": "Zero downtime during peak healthcare hours"
+        },
+        {
+          "metric": "<140ms",
+          "label": "Global Latency",
+          "description": "Real-time bi-directional patient signaling"
+        }
+      ],
+      "externalUrl": "https://aurorahealth.example.com",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 1,
+      "seoTitle": "Aurora Health Case Study | SaaS Product Engineering by Velora Labs",
+      "seoDescription": "How Velora Labs designed and built Aurora Health's scalable AI-ready telehealth portal.",
+      "publishedAt": "2025-01-15T00:00:00.000Z",
+      "updatedAt": "2025-02-10T00:00:00.000Z",
+      "testimonial": {
+        "author": "Dr. Elena Rostova",
+        "role": "Chief Technology Officer, Aurora Health",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+        "quote": "Velora Labs doesn't just write code; they think like seasoned venture architects. Their architectural rigor allowed us to close our Series B ahead of schedule."
+      }
+    },
+    {
+      "id": "proj-2",
+      "slug": "lumina-nordic-headless-shopify",
+      "title": "Lumina Nordic — High-Conversion Headless Shopify Store",
+      "tagline": "Sub-Second Global Headless Commerce for Scandinavian Design Icon",
+      "clientName": "Lumina Home & Living",
+      "category": "website",
+      "subCategory": "Headless Shopify & Conversion Optimization",
+      "services": [
+        "Shopify Plus",
+        "Next.js Storefront",
+        "Speed Optimization",
+        "Global CDN",
+        "Custom Checkout"
+      ],
+      "technologies": [
+        "Shopify Plus API",
+        "React",
+        "TailwindCSS",
+        "Edge CDN",
+        "Algolia Search"
+      ],
+      "coverImage": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1400&q=80"
+      ],
+      "summary": "Rebuilt Lumina Nordic's legacy monolithic store into an edge-rendered headless commerce experience, multiplying checkout conversion across 18 countries.",
+      "challenge": "Slow load times (>4.2s) and high mobile cart abandonment were hurting international expansion into North America and Asia-Pacific.",
+      "solution": "We designed a bespoke editorial storefront utilizing headless Shopify Storefront API with instant page transitions, localized currencies, and predictive search.",
+      "results": [
+        {
+          "metric": "+48%",
+          "label": "Conversion Lift",
+          "description": "Mobile checkout completion increase"
+        },
+        {
+          "metric": "0.6s",
+          "label": "Average Page Load",
+          "description": "99+ Google Lighthouse performance score"
+        },
+        {
+          "metric": "+112%",
+          "label": "International Revenue",
+          "description": "Immediate lift post-launch"
+        }
+      ],
+      "externalUrl": "https://luminanordic.example.com",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 2,
+      "seoTitle": "Lumina Nordic E-Commerce Redesign | Velora Labs",
+      "seoDescription": "Exploration of the headless Shopify architecture that delivered a 48% conversion boost.",
+      "publishedAt": "2025-01-20T00:00:00.000Z",
+      "updatedAt": "2025-02-05T00:00:00.000Z",
+      "testimonial": {
+        "author": "Magnus Lindqvist",
+        "role": "VP of E-Commerce, Lumina Nordic",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+        "quote": "The speed differential is night and day. Velora Labs rebuilt our global storefront with zero revenue downtime, delivering the highest converting quarter in our company's history."
+      }
+    },
+    {
+      "id": "proj-3",
+      "slug": "vanguard-capital-autonomous-crm-pipeline",
+      "title": "Vanguard Capital — Enterprise n8n & GHL Automation Engine",
+      "tagline": "Autonomous Deal Ingestion, AI Qualification & CRM Sync Pipeline",
+      "clientName": "Vanguard Real Estate Group",
+      "category": "automation",
+      "subCategory": "AI Automation & CRM Integration",
+      "services": [
+        "n8n Workflows",
+        "GoHighLevel CRM",
+        "Make.com API Sync",
+        "AI Lead Scoring",
+        "Instant Dispatch"
+      ],
+      "technologies": [
+        "n8n",
+        "Make",
+        "GoHighLevel",
+        "OpenAI / Claude API",
+        "PostgreSQL",
+        "Twilio API"
+      ],
+      "coverImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=80"
+      ],
+      "summary": "Built an end-to-end automated deal intake and AI qualification engine processing over $120M in quarterly commercial real estate inquiries.",
+      "challenge": "Manual follow-ups resulted in 36-hour lead latency, high deal leakage, and disconnected CRM databases across 4 regional branches.",
+      "solution": "Velora Labs deployed a resilient n8n automation cluster integrated with GoHighLevel and custom AI scoring agents to validate financial parameters, enrich prospect dossiers, and schedule qualified broker meetings in under 45 seconds.",
+      "results": [
+        {
+          "metric": "<45 sec",
+          "label": "Speed to Lead",
+          "description": "Down from 36 hours previously"
+        },
+        {
+          "metric": "73%",
+          "label": "Manual Hours Saved",
+          "description": "Automated triage & data reconciliation"
+        },
+        {
+          "metric": "$38M+",
+          "label": "Pipeline Generated",
+          "description": "Directly attributable to autonomous follow-ups"
+        }
+      ],
+      "externalUrl": "https://vanguardcapital.example.com",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 3,
+      "seoTitle": "Vanguard Capital Automation Pipeline | Velora Labs",
+      "seoDescription": "How autonomous workflows transformed high-ticket deal flow and broker velocity.",
+      "publishedAt": "2025-02-01T00:00:00.000Z",
+      "updatedAt": "2025-02-18T00:00:00.000Z",
+      "testimonial": {
+        "author": "Julian Vance",
+        "role": "Managing Director, Vanguard Capital",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+        "quote": "Our deal pipeline runs on pure autopilot now. Velora Labs connected our disparate tech stack into an intelligent machine that never drops a lead."
+      }
+    },
+    {
+      "id": "proj-4",
+      "slug": "strata-fintech-multi-channel-growth",
+      "title": "Strata Pay — $0 to $3.2M ARR Growth Marketing Engine",
+      "tagline": "Omnichannel B2B Acquisition, Google & Meta Ads + Funnel CRO",
+      "clientName": "Strata Financial Systems",
+      "category": "marketing",
+      "subCategory": "Performance Marketing & Funnel Optimization",
+      "services": [
+        "Google Ads Scale",
+        "Meta B2B Ads",
+        "Funnel CRO",
+        "Attribution Modeling",
+        "Creative Velocity"
+      ],
+      "technologies": [
+        "Google Ads",
+        "Meta Business",
+        "Triple Whale",
+        "PostHog",
+        "Unbounce"
+      ],
+      "coverImage": "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1400&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=1400&q=80",
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80"
+      ],
+      "summary": "Engineered a predictable customer acquisition apparatus for a modern B2B billing infrastructure product, scaling to $3.2M ARR in 14 months.",
+      "challenge": "High customer acquisition cost ($1,850/CAC) on generic paid search keywords with low demo-to-activation conversion.",
+      "solution": "Rebuilt the acquisition architecture: high-intent landing page variants, custom value calculators, granular intent-based Google Ads bidding, and dynamic retargeting sequences.",
+      "results": [
+        {
+          "metric": "-62%",
+          "label": "Customer Acquisition Cost",
+          "description": "Reduced CAC from $1,850 to $703"
+        },
+        {
+          "metric": "4.8x",
+          "label": "ROAS / Pipeline Value",
+          "description": "Blended qualified sales pipeline return"
+        },
+        {
+          "metric": "$3.2M",
+          "label": "New Annual ARR",
+          "description": "Generated within first 14 months"
+        }
+      ],
+      "externalUrl": "https://stratapay.example.com",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 4,
+      "seoTitle": "Strata Pay Growth Marketing Case Study | Velora Labs",
+      "seoDescription": "How Velora Labs scaled Strata Pay's paid customer acquisition to $3.2M ARR.",
+      "publishedAt": "2025-02-12T00:00:00.000Z",
+      "updatedAt": "2025-02-20T00:00:00.000Z",
+      "testimonial": {
+        "author": "Samantha Wei",
+        "role": "Head of Growth, Strata Pay",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80",
+        "quote": "Velora Labs doesn't just run ads; they dissect your unit economics, build bespoke landing experiences, and iterate on actual revenue metrics."
+      }
+    },
+    {
+      "id": "proj-5",
+      "slug": "nexus-logistics-dispatch-automation",
+      "title": "Nexus Global — Freight Automation & Zapier/Make Workflows",
+      "tagline": "Zero-Latency Logistics Notification & Fleet Tracking Pipeline",
+      "clientName": "Nexus Freight Logistics",
+      "category": "automation",
+      "subCategory": "Business Process & Supply Chain Automation",
+      "services": [
+        "Zapier Enterprise",
+        "Make.com Scenarios",
+        "ERP Sync",
+        "SMS Telemetry",
+        "Custom Webhooks"
+      ],
+      "technologies": [
+        "Make.com",
+        "Zapier",
+        "Node.js",
+        "Twilio",
+        "Google Sheets API"
+      ],
+      "coverImage": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1400&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1400&q=80"
+      ],
+      "summary": "Connected 12 regional distribution warehouses with instant carrier dispatch and customer SMS status broadcasts.",
+      "challenge": "Manual spreadsheet updates and delayed dispatch notices caused driver detention charges exceeding $40,000 monthly.",
+      "solution": "Designed automated webhook listeners syncing warehouse weigh-stations directly to carriers and shippers in real time.",
+      "results": [
+        {
+          "metric": "92%",
+          "label": "Reduction in Detention Fees",
+          "description": "Real-time driver dispatch alerts"
+        },
+        {
+          "metric": "14,000+",
+          "label": "Monthly Auto Dispatches",
+          "description": "Handled seamlessly without manual touch"
+        }
+      ],
+      "externalUrl": "https://nexusfreight.example.com",
+      "isFeatured": false,
+      "isPublished": true,
+      "displayOrder": 5,
+      "seoTitle": "Nexus Freight Automation Case Study | Velora Labs",
+      "seoDescription": "Automating nationwide freight dispatch with Make and Zapier enterprise workflows.",
+      "publishedAt": "2025-02-14T00:00:00.000Z",
+      "updatedAt": "2025-02-14T00:00:00.000Z"
+    },
+    {
+      "id": "proj-6",
+      "slug": "atelier-koto-minimalist-portfolio-brand",
+      "title": "Atelier Koto — Architectural Showcase & CMS Website",
+      "tagline": "Fluid WebGL Transitions & Editorial WordPress Headless CMS",
+      "clientName": "Atelier Koto Architecture",
+      "category": "website",
+      "subCategory": "High-End Architecture Portfolio",
+      "services": [
+        "Editorial Design",
+        "Headless CMS",
+        "Smooth Animation",
+        "Image Optimization",
+        "SEO"
+      ],
+      "technologies": [
+        "WordPress Headless",
+        "React",
+        "Motion",
+        "TailwindCSS"
+      ],
+      "coverImage": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80",
+      "gallery": [
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=80"
+      ],
+      "summary": "Crafted a bespoke digital monograph for a premier Scandinavian architecture studio.",
+      "challenge": "Presenting massive 4K photography portfolios without compromising mobile smoothness or loading performance.",
+      "solution": "Constructed an ultra-lightweight progressive image pipeline with editorial typography and kinetic scroll reveals.",
+      "results": [
+        {
+          "metric": "3.4x",
+          "label": "Time on Site",
+          "description": "Enhanced client engagement with projects"
+        },
+        {
+          "metric": "100/100",
+          "label": "Lighthouse SEO",
+          "description": "Dominates search rankings for luxury architects"
+        }
+      ],
+      "externalUrl": "https://atelierkoto.example.com",
+      "isFeatured": false,
+      "isPublished": true,
+      "displayOrder": 6,
+      "seoTitle": "Atelier Koto Architecture Showcase | Velora Labs",
+      "seoDescription": "Editorial digital architecture experience built with headless CMS.",
+      "publishedAt": "2025-02-16T00:00:00.000Z",
+      "updatedAt": "2025-02-16T00:00:00.000Z"
+    }
+  ],
+  "clients": [
+    {
+      "id": "client-1",
+      "name": "Aurora Health",
+      "logo": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=120&q=80",
+      "website": "https://aurorahealth.example.com",
+      "description": "Venture-backed telemedicine and digital healthcare platform.",
+      "category": "client",
+      "relationshipType": "SaaS Product Engineering Client",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 1,
+      "seoTitle": "Aurora Health Partner Profile | Velora Labs",
+      "seoDescription": "Venture-backed telemedicine and digital healthcare platform engineered by Velora Labs.",
+      "metaTitle": "Aurora Health Partner Profile | Velora Labs",
+      "metaDescription": "Venture-backed telemedicine and digital healthcare platform engineered by Velora Labs.",
+      "testimonial": {
+        "quote": "Velora Labs delivered the foundational architecture that powered our 10x growth in active patient appointments.",
+        "author": "Dr. Elena Rostova",
+        "role": "CTO, Aurora Health",
+        "rating": 5
+      },
+      "linkedProjectSlugs": [
+        "aurora-health-ai-telehealth"
+      ]
+    },
+    {
+      "id": "client-2",
+      "name": "Lumina Nordic",
+      "logo": "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=120&q=80",
+      "website": "https://luminanordic.example.com",
+      "description": "Scandinavian luxury furniture & direct-to-consumer lifestyle brand.",
+      "category": "client",
+      "relationshipType": "Headless E-Commerce Client",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 2,
+      "seoTitle": "Lumina Nordic E-Commerce Partnership | Velora Labs",
+      "seoDescription": "Scandinavian luxury design and global headless commerce architecture case profile.",
+      "metaTitle": "Lumina Nordic E-Commerce Partnership | Velora Labs",
+      "metaDescription": "Scandinavian luxury design and global headless commerce architecture case profile.",
+      "testimonial": {
+        "quote": "The speed and conversion lift across 18 countries exceeded our most aggressive annual targets.",
+        "author": "Magnus Lindqvist",
+        "role": "VP of E-Commerce, Lumina Nordic",
+        "rating": 5
+      },
+      "linkedProjectSlugs": [
+        "lumina-nordic-headless-shopify"
+      ]
+    },
+    {
+      "id": "client-3",
+      "name": "Vanguard Capital",
+      "logo": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=120&q=80",
+      "website": "https://vanguardcapital.example.com",
+      "description": "Commercial real estate investment syndicate managing $400M+ AUM.",
+      "category": "enterprise",
+      "relationshipType": "AI Workflow & CRM Partner",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 3,
+      "seoTitle": "Vanguard Capital Commercial Real Estate Automation | Velora Labs",
+      "seoDescription": "Enterprise workflow systems and automated broker pipelines by Velora Labs.",
+      "metaTitle": "Vanguard Capital Commercial Real Estate Automation | Velora Labs",
+      "metaDescription": "Enterprise workflow systems and automated broker pipelines by Velora Labs.",
+      "testimonial": {
+        "quote": "The autonomous deal triage pipeline eliminated hundreds of manual administrative hours every month.",
+        "author": "Julian Vance",
+        "role": "Managing Director, Vanguard Capital",
+        "rating": 5
+      },
+      "linkedProjectSlugs": [
+        "vanguard-capital-autonomous-crm-pipeline"
+      ]
+    },
+    {
+      "id": "client-4",
+      "name": "Strata Financial",
+      "logo": "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=120&q=80",
+      "website": "https://stratapay.example.com",
+      "description": "Modern enterprise invoicing and payment infrastructure provider.",
+      "category": "client",
+      "relationshipType": "Growth & Performance Marketing Client",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 4,
+      "seoTitle": "Strata Financial FinTech Scale Profile | Velora Labs",
+      "seoDescription": "Multi-channel B2B paid growth, CAC reduction, and high-intent demo pipelines.",
+      "metaTitle": "Strata Financial FinTech Scale Profile | Velora Labs",
+      "metaDescription": "Multi-channel B2B paid growth, CAC reduction, and high-intent demo pipelines.",
+      "testimonial": {
+        "quote": "A true revenue partner. They cut our CAC by 62% while tripling our demo pipeline.",
+        "author": "Samantha Wei",
+        "role": "Head of Growth, Strata Pay",
+        "rating": 5
+      },
+      "linkedProjectSlugs": [
+        "strata-fintech-multi-channel-growth"
+      ]
+    },
+    {
+      "id": "client-5",
+      "name": "Nexus Freight",
+      "logo": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=120&q=80",
+      "website": "https://nexusfreight.example.com",
+      "description": "Nationwide supply chain and logistics fleet carrier.",
+      "category": "client",
+      "relationshipType": "Automation & Integration Client",
+      "isFeatured": true,
+      "isPublished": true,
+      "displayOrder": 5,
+      "seoTitle": "Nexus Freight Logistics Automation | Velora Labs",
+      "seoDescription": "Nationwide fleet dispatch and multi-carrier ERP synchronization systems.",
+      "metaTitle": "Nexus Freight Logistics Automation | Velora Labs",
+      "metaDescription": "Nationwide fleet dispatch and multi-carrier ERP synchronization systems.",
+      "testimonial": {
+        "quote": "Smooth operations across 12 distribution hubs with zero manual entry bottlenecks.",
+        "author": "David Kovacs",
+        "role": "COO, Nexus Freight",
+        "rating": 5
+      },
+      "linkedProjectSlugs": [
+        "nexus-logistics-dispatch-automation"
+      ]
+    },
+    {
+      "id": "client-6",
+      "name": "Atelier Koto",
+      "logo": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=120&q=80",
+      "website": "https://atelierkoto.example.com",
+      "description": "Boutique architectural practice specializing in sustainable residences.",
+      "category": "client",
+      "relationshipType": "Brand Showcase & Web Experience",
+      "isFeatured": false,
+      "isPublished": true,
+      "displayOrder": 6,
+      "seoTitle": "Atelier Koto Architecture Web Experience | Velora Labs",
+      "seoDescription": "Editorial brand identity, interactive 3D portfolios, and conversion showcase.",
+      "metaTitle": "Atelier Koto Architecture Web Experience | Velora Labs",
+      "metaDescription": "Editorial brand identity, interactive 3D portfolios, and conversion showcase.",
+      "linkedProjectSlugs": [
+        "atelier-koto-minimalist-portfolio-brand"
+      ]
+    }
+  ],
+  "inquiries": [
+    {
+      "id": "inq-101",
+      "name": "Marcus Sterling",
+      "email": "marcus@sterlingventures.io",
+      "company": "Sterling Ventures",
+      "service": "saas",
+      "budget": "$35k - $75k",
+      "timeline": "1 - 2 months",
+      "message": "We need an experienced product team to take over development of our B2B compliance dashboard and rebuild the real-time reporting module.",
+      "status": "reviewed",
+      "createdAt": "2025-02-18T14:30:00.000Z"
+    },
+    {
+      "id": "inq-102",
+      "name": "Chloe Chen",
+      "email": "chloe@verveapparel.co",
+      "company": "Verve Apparel",
+      "service": "website",
+      "budget": "$15k - $35k",
+      "timeline": "Immediate (< 2 weeks)",
+      "message": "Migrating our flagship store to Shopify Plus with custom interactive sizing tools and 3D product previews.",
+      "status": "new",
+      "createdAt": "2025-02-23T09:15:00.000Z"
+    }
+  ]
+}
