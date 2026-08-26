@@ -220,4 +220,23 @@ export const api = {
     }
     return res.json();
   },
+
+  // Supabase PostgreSQL Operations
+  async getSupabaseStatus(): Promise<{ connected: boolean; configured: boolean; url: string | null; message: string; tablesReady?: boolean; error?: string }> {
+    const res = await fetch(`${API_BASE}/system/supabase-status`);
+    if (!res.ok) throw new Error('Failed to query Supabase status');
+    return res.json();
+  },
+
+  async syncToSupabase(): Promise<{ success: boolean; message: string; results?: { projects: number; clients: number; team: number; inquiries: number }; error?: string }> {
+    const res = await fetch(`${API_BASE}/system/sync-to-supabase`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to synchronize with Supabase');
+    }
+    return data;
+  },
 };

@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 dotenv.config();
 
@@ -12,6 +13,35 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json({ limit: "15mb" }));
+
+// Initialize Supabase Client if credentials are provided in env
+let supabaseClient: SupabaseClient | null = null;
+
+function getSupabase(): SupabaseClient | null {
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey) {
+    return null;
+  }
+
+  if (!supabaseClient) {
+    try {
+      supabaseClient = createClient(supabaseUrl, supabaseKey, {
+        auth: {
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      });
+      console.log(`[Supabase] Connected to PostgreSQL instance at: ${supabaseUrl}`);
+    } catch (err) {
+      console.error("[Supabase] Connection error:", err);
+      return null;
+    }
+  }
+
+  return supabaseClient;
+}
 
 // Server-side Gemini initialization
 let aiClient: GoogleGenAI | null = null;
@@ -533,6 +563,175 @@ function saveDatabase() {
 
 loadDatabase();
 
+// ---------------------------------------------------------
+// REAL-TIME SUPABASE SYNCHRONIZERS (LIVE AUTO-SYNC)
+// ---------------------------------------------------------
+async function syncProjectToSupabase(project: any, action: 'upsert' | 'delete' = 'upsert') {
+  const supabase = getSupabase();
+  if (!supabase) return;
+  try {
+    if (action === 'delete') {
+      await supabase.from("projects").delete().eq("id", project.id);
+      console.log(`[Supabase Auto-Sync] Deleted project ${project.id}`);
+    } else {
+      const formatted = {
+        id: project.id,
+        slug: project.slug,
+        title: project.title,
+        tagline: project.tagline || "",
+        client_name: project.clientName || "",
+        client_logo: project.clientLogo || "",
+        category: project.category || "website",
+        sub_category: project.subCategory || "",
+        services: project.services || [],
+        technologies: project.technologies || [],
+        cover_image: project.coverImage || "",
+        gallery: project.gallery || [],
+        summary: project.summary || "",
+        challenge: project.challenge || "",
+        solution: project.solution || "",
+        results: project.results || [],
+        external_url: project.externalUrl || "",
+        is_featured: !!project.isFeatured,
+        is_published: project.isPublished !== false,
+        display_order: Number(project.displayOrder) || 1,
+        seo_title: project.seoTitle || project.metaTitle || `${project.title} | Velora Labs`,
+        seo_description: project.seoDescription || project.metaDescription || project.summary || "",
+        meta_title: project.metaTitle || project.seoTitle || `${project.title} | Velora Labs`,
+        meta_description: project.metaDescription || project.seoDescription || project.summary || "",
+        testimonial: project.testimonial || null,
+        published_at: project.publishedAt || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await supabase.from("projects").upsert(formatted, { onConflict: "id" });
+      if (error) {
+        if (!error.message?.includes("does not exist") && !error.message?.includes("schema cache")) {
+          console.warn(`[Supabase Auto-Sync Project Notice]`, error.message);
+        }
+      } else {
+        console.log(`[Supabase Auto-Sync] Live upserted project: ${project.title}`);
+      }
+    }
+  } catch (err: any) {
+    // Non-blocking background sync warning
+  }
+}
+
+async function syncClientToSupabase(client: any, action: 'upsert' | 'delete' = 'upsert') {
+  const supabase = getSupabase();
+  if (!supabase) return;
+  try {
+    if (action === 'delete') {
+      await supabase.from("clients").delete().eq("id", client.id);
+      console.log(`[Supabase Auto-Sync] Deleted client ${client.id}`);
+    } else {
+      const formatted = {
+        id: client.id,
+        name: client.name,
+        logo: client.logo || "",
+        website: client.website || "",
+        description: client.description || "",
+        category: client.category || "client",
+        relationship_type: client.relationshipType || "Digital Partner",
+        is_featured: !!client.isFeatured,
+        is_published: client.isPublished !== false,
+        display_order: Number(client.displayOrder) || 1,
+        seo_title: client.seoTitle || client.metaTitle || `${client.name} | Partner Profile`,
+        seo_description: client.seoDescription || client.metaDescription || client.description || "",
+        meta_title: client.metaTitle || client.seoTitle || `${client.name} | Partner Profile`,
+        meta_description: client.metaDescription || client.seoDescription || client.description || "",
+        testimonial: client.testimonial || null,
+        linked_project_slugs: client.linkedProjectSlugs || [],
+        created_at: client.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await supabase.from("clients").upsert(formatted, { onConflict: "id" });
+      if (error) {
+        if (!error.message?.includes("does not exist") && !error.message?.includes("schema cache")) {
+          console.warn(`[Supabase Auto-Sync Client Notice]`, error.message);
+        }
+      } else {
+        console.log(`[Supabase Auto-Sync] Live upserted partner: ${client.name}`);
+      }
+    }
+  } catch (err: any) {
+    // Non-blocking background sync warning
+  }
+}
+
+async function syncTeamToSupabase(member: any, action: 'upsert' | 'delete' = 'upsert') {
+  const supabase = getSupabase();
+  if (!supabase) return;
+  try {
+    if (action === 'delete') {
+      await supabase.from("team").delete().eq("id", member.id);
+      console.log(`[Supabase Auto-Sync] Deleted team member ${member.id}`);
+    } else {
+      const formatted = {
+        id: member.id,
+        name: member.name,
+        role: member.role,
+        specialty: member.specialty || "",
+        bio: member.bio || "",
+        avatar: member.avatar || "",
+        experience: member.experience || "",
+        display_order: Number(member.displayOrder) || 1,
+        is_published: member.isPublished !== false,
+        social_linkedin: member.socialLinkedin || "",
+        social_twitter: member.socialTwitter || "",
+        social_github: member.socialGithub || "",
+        created_at: member.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await supabase.from("team").upsert(formatted, { onConflict: "id" });
+      if (error) {
+        if (!error.message?.includes("does not exist") && !error.message?.includes("schema cache")) {
+          console.warn(`[Supabase Auto-Sync Team Notice]`, error.message);
+        }
+      } else {
+        console.log(`[Supabase Auto-Sync] Live upserted team member: ${member.name}`);
+      }
+    }
+  } catch (err: any) {
+    // Non-blocking background sync warning
+  }
+}
+
+async function syncInquiryToSupabase(inquiry: any, action: 'upsert' | 'delete' = 'upsert') {
+  const supabase = getSupabase();
+  if (!supabase) return;
+  try {
+    if (action === 'delete') {
+      await supabase.from("inquiries").delete().eq("id", inquiry.id);
+      console.log(`[Supabase Auto-Sync] Deleted inquiry ${inquiry.id}`);
+    } else {
+      const formatted = {
+        id: inquiry.id,
+        name: inquiry.name,
+        email: inquiry.email,
+        company: inquiry.company || "Undisclosed",
+        service: inquiry.service || "full_systems",
+        budget: inquiry.budget || "Flexible",
+        timeline: inquiry.timeline || "Flexible",
+        message: inquiry.message || "",
+        status: inquiry.status || "new",
+        created_at: inquiry.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+      const { error } = await supabase.from("inquiries").upsert(formatted, { onConflict: "id" });
+      if (error) {
+        if (!error.message?.includes("does not exist") && !error.message?.includes("schema cache")) {
+          console.warn(`[Supabase Auto-Sync Inquiry Notice]`, error.message);
+        }
+      } else {
+        console.log(`[Supabase Auto-Sync] Live upserted inquiry: ${inquiry.id}`);
+      }
+    }
+  } catch (err: any) {
+    // Non-blocking background sync warning
+  }
+}
+
 // ------------------- API ENDPOINTS -------------------
 
 // 1. Stats Overview
@@ -657,6 +856,7 @@ app.post("/api/projects", (req, res) => {
 
     dbData.projects.push(newProject);
     saveDatabase();
+    syncProjectToSupabase(newProject, 'upsert');
     res.status(201).json(newProject);
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to create project" });
@@ -683,6 +883,7 @@ app.put("/api/projects/:id", (req, res) => {
 
   dbData.projects[index] = updatedProject;
   saveDatabase();
+  syncProjectToSupabase(updatedProject, 'upsert');
   res.json(updatedProject);
 });
 
@@ -694,6 +895,7 @@ app.delete("/api/projects/:id", (req, res) => {
     return res.status(404).json({ error: "Project not found" });
   }
   saveDatabase();
+  syncProjectToSupabase({ id }, 'delete');
   res.json({ success: true, message: "Project deleted successfully" });
 });
 
@@ -755,6 +957,7 @@ app.post("/api/clients", (req, res) => {
 
     dbData.clients.push(newClient);
     saveDatabase();
+    syncClientToSupabase(newClient, 'upsert');
     res.status(201).json(newClient);
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to create client" });
@@ -779,6 +982,7 @@ app.put("/api/clients/:id", (req, res) => {
 
   dbData.clients[index] = updatedClient;
   saveDatabase();
+  syncClientToSupabase(updatedClient, 'upsert');
   res.json(updatedClient);
 });
 
@@ -790,6 +994,7 @@ app.delete("/api/clients/:id", (req, res) => {
     return res.status(404).json({ error: "Client not found" });
   }
   saveDatabase();
+  syncClientToSupabase({ id }, 'delete');
   res.json({ success: true, message: "Client deleted successfully" });
 });
 
@@ -854,6 +1059,7 @@ app.post("/api/team", (req, res) => {
 
     dbData.team.push(newMember);
     saveDatabase();
+    syncTeamToSupabase(newMember, 'upsert');
     res.status(201).json(newMember);
   } catch (err: any) {
     res.status(500).json({ error: err.message || "Failed to create team member" });
@@ -884,6 +1090,7 @@ app.put("/api/team/:id", (req, res) => {
 
   dbData.team[index] = updatedMember;
   saveDatabase();
+  syncTeamToSupabase(updatedMember, 'upsert');
   res.json(updatedMember);
 });
 
@@ -895,6 +1102,7 @@ app.delete("/api/team/:id", (req, res) => {
     return res.status(404).json({ error: "Team member not found" });
   }
   saveDatabase();
+  syncTeamToSupabase({ id }, 'delete');
   res.json({ success: true, message: "Team member deleted successfully" });
 });
 
@@ -1266,6 +1474,7 @@ app.post("/api/inquiries", async (req, res) => {
     // Save persistently to database
     dbData.inquiries.unshift(newInquiry);
     saveDatabase();
+    syncInquiryToSupabase(newInquiry, 'upsert');
 
     // Trigger SMTP Email Notification to Gmail & Client Receipt
     const emailResult = await sendInquiryNotification(newInquiry);
@@ -1338,6 +1547,7 @@ app.patch("/api/inquiries/:id/status", (req, res) => {
   }
   inq.status = status;
   saveDatabase();
+  syncInquiryToSupabase(inq, 'upsert');
   res.json(inq);
 });
 
@@ -1345,6 +1555,7 @@ app.delete("/api/inquiries/:id", (req, res) => {
   const { id } = req.params;
   dbData.inquiries = dbData.inquiries.filter(i => i.id !== id);
   saveDatabase();
+  syncInquiryToSupabase({ id }, 'delete');
   res.json({ success: true });
 });
 
@@ -1367,6 +1578,228 @@ app.post("/api/auth/login", (req, res) => {
     });
   }
   res.status(401).json({ error: "Invalid administrative credentials. Please enter the master passphrase." });
+});
+
+// 5b. Supabase PostgreSQL Status & Synchronization Endpoints
+app.get("/api/system/supabase-status", async (req, res) => {
+  const supabase = getSupabase();
+  const configured = Boolean(supabase);
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || null;
+
+  if (!supabase) {
+    return res.json({
+      connected: false,
+      configured: false,
+      url: supabaseUrl,
+      message: "Supabase credentials not configured in environment variables.",
+      instructions: "Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY to your environment/secrets."
+    });
+  }
+
+  try {
+    // Check tables existence
+    const [projRes, clientRes, teamRes, inqRes] = await Promise.allSettled([
+      supabase.from("projects").select("id").limit(1),
+      supabase.from("clients").select("id").limit(1),
+      supabase.from("team").select("id").limit(1),
+      supabase.from("inquiries").select("id").limit(1),
+    ]);
+
+    const isMissingTable = (res: PromiseSettledResult<any>) => {
+      if (res.status === "rejected") return true;
+      const err = res.value?.error;
+      return err && (err.message?.includes("does not exist") || err.message?.includes("schema cache"));
+    };
+
+    const tablesStatus = {
+      projects: projRes.status === "fulfilled" && !isMissingTable(projRes),
+      clients: clientRes.status === "fulfilled" && !isMissingTable(clientRes),
+      team: teamRes.status === "fulfilled" && !isMissingTable(teamRes),
+      inquiries: inqRes.status === "fulfilled" && !isMissingTable(inqRes),
+    };
+
+    const allTablesReady = tablesStatus.projects && tablesStatus.clients && tablesStatus.team && tablesStatus.inquiries;
+
+    res.json({
+      connected: true,
+      configured: true,
+      url: supabaseUrl,
+      tablesReady: allTablesReady,
+      tablesStatus,
+      message: allTablesReady
+        ? "Connected to Supabase PostgreSQL database. All tables are operational with live auto-synchronization active."
+        : "Connected to Supabase endpoint! PostgreSQL tables are waiting to be created in your Supabase SQL Editor."
+    });
+  } catch (err: any) {
+    res.json({
+      connected: false,
+      configured: true,
+      url: supabaseUrl,
+      error: err.message || "Failed to reach Supabase API",
+      message: "Supabase connection test encountered a network or authentication error."
+    });
+  }
+});
+
+app.post("/api/system/sync-to-supabase", async (req, res) => {
+  const supabase = getSupabase();
+  if (!supabase) {
+    return res.status(400).json({
+      success: false,
+      error: "Supabase client is not configured. Please supply SUPABASE_URL and SUPABASE_ANON_KEY or SUPABASE_SERVICE_ROLE_KEY."
+    });
+  }
+
+  try {
+    const results = {
+      projects: 0,
+      clients: 0,
+      team: 0,
+      inquiries: 0
+    };
+
+    // 1. Sync Projects
+    if (dbData.projects.length > 0) {
+      const formattedProjects = dbData.projects.map(p => ({
+        id: p.id,
+        slug: p.slug,
+        title: p.title,
+        tagline: p.tagline || "",
+        client_name: p.clientName || "",
+        client_logo: p.clientLogo || "",
+        category: p.category || "website",
+        sub_category: p.subCategory || "",
+        services: p.services || [],
+        technologies: p.technologies || [],
+        cover_image: p.coverImage || "",
+        gallery: p.gallery || [],
+        summary: p.summary || "",
+        challenge: p.challenge || "",
+        solution: p.solution || "",
+        results: p.results || [],
+        external_url: p.externalUrl || "",
+        is_featured: !!p.isFeatured,
+        is_published: p.isPublished !== false,
+        display_order: Number(p.displayOrder) || 1,
+        seo_title: p.seoTitle || p.metaTitle || `${p.title} | Velora Labs`,
+        seo_description: p.seoDescription || p.metaDescription || p.summary || "",
+        meta_title: p.metaTitle || p.seoTitle || `${p.title} | Velora Labs`,
+        meta_description: p.metaDescription || p.seoDescription || p.summary || "",
+        testimonial: p.testimonial || null,
+        published_at: p.publishedAt || new Date().toISOString(),
+        updated_at: p.updatedAt || new Date().toISOString()
+      }));
+
+      const { error: projErr } = await supabase.from("projects").upsert(formattedProjects, { onConflict: "id" });
+      if (projErr) {
+        if (projErr.message?.includes("does not exist") || projErr.message?.includes("schema cache")) {
+          throw new Error("Table 'public.projects' has not been created yet in your Supabase project. Please copy the SQL Schema script below, run it in your Supabase SQL Editor, and then sync.");
+        }
+        throw new Error(`Projects sync error: ${projErr.message}`);
+      }
+      results.projects = formattedProjects.length;
+    }
+
+    // 2. Sync Clients
+    if (dbData.clients.length > 0) {
+      const formattedClients = dbData.clients.map(c => ({
+        id: c.id,
+        name: c.name,
+        logo: c.logo || "",
+        website: c.website || "",
+        description: c.description || "",
+        category: c.category || "client",
+        relationship_type: c.relationshipType || "Digital Partner",
+        is_featured: !!c.isFeatured,
+        is_published: c.isPublished !== false,
+        display_order: Number(c.displayOrder) || 1,
+        seo_title: c.seoTitle || c.metaTitle || `${c.name} | Partner Profile`,
+        seo_description: c.seoDescription || c.metaDescription || c.description || "",
+        meta_title: c.metaTitle || c.seoTitle || `${c.name} | Partner Profile`,
+        meta_description: c.metaDescription || c.seoDescription || c.description || "",
+        testimonial: c.testimonial || null,
+        linked_project_slugs: c.linkedProjectSlugs || [],
+        created_at: c.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+
+      const { error: clientErr } = await supabase.from("clients").upsert(formattedClients, { onConflict: "id" });
+      if (clientErr) {
+        if (clientErr.message?.includes("does not exist") || clientErr.message?.includes("schema cache")) {
+          throw new Error("Table 'public.clients' has not been created yet in your Supabase project. Please run the SQL Schema script in your Supabase SQL Editor.");
+        }
+        throw new Error(`Clients sync error: ${clientErr.message}`);
+      }
+      results.clients = formattedClients.length;
+    }
+
+    // 3. Sync Team
+    if (dbData.team.length > 0) {
+      const formattedTeam = dbData.team.map(t => ({
+        id: t.id,
+        name: t.name,
+        role: t.role,
+        specialty: t.specialty || "",
+        bio: t.bio || "",
+        avatar: t.avatar || "",
+        experience: t.experience || "",
+        display_order: Number(t.displayOrder) || 1,
+        is_published: t.isPublished !== false,
+        social_linkedin: t.socialLinkedin || "",
+        social_twitter: t.socialTwitter || "",
+        social_github: t.socialGithub || "",
+        created_at: t.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+
+      const { error: teamErr } = await supabase.from("team").upsert(formattedTeam, { onConflict: "id" });
+      if (teamErr) {
+        if (teamErr.message?.includes("does not exist") || teamErr.message?.includes("schema cache")) {
+          throw new Error("Table 'public.team' has not been created yet in your Supabase project. Please run the SQL Schema script in your Supabase SQL Editor.");
+        }
+        throw new Error(`Team sync error: ${teamErr.message}`);
+      }
+      results.team = formattedTeam.length;
+    }
+
+    // 4. Sync Inquiries
+    if (dbData.inquiries.length > 0) {
+      const formattedInquiries = dbData.inquiries.map(i => ({
+        id: i.id,
+        name: i.name,
+        email: i.email,
+        company: i.company || "Undisclosed",
+        service: i.service || "full_systems",
+        budget: i.budget || "Flexible",
+        timeline: i.timeline || "Flexible",
+        message: i.message || "",
+        status: i.status || "new",
+        created_at: i.createdAt || new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+
+      const { error: inqErr } = await supabase.from("inquiries").upsert(formattedInquiries, { onConflict: "id" });
+      if (inqErr) {
+        if (inqErr.message?.includes("does not exist") || inqErr.message?.includes("schema cache")) {
+          throw new Error("Table 'public.inquiries' has not been created yet in your Supabase project. Please run the SQL Schema script in your Supabase SQL Editor.");
+        }
+        throw new Error(`Inquiries sync error: ${inqErr.message}`);
+      }
+      results.inquiries = formattedInquiries.length;
+    }
+
+    res.json({
+      success: true,
+      message: `Successfully synchronized ${results.projects} projects, ${results.clients} partners, ${results.team} team members, and ${results.inquiries} inquiries to Supabase PostgreSQL database.`,
+      results
+    });
+  } catch (err: any) {
+    console.error("[Supabase Sync Error]", err);
+    res.status(500).json({
+      success: false,
+      error: err.message || "Failed to sync records to Supabase"
+    });
+  }
 });
 
 // 6. Gemini AI Project Scoping & Consultation Advisor with Resilient Fallback & Retries

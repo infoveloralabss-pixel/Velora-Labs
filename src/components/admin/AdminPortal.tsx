@@ -32,7 +32,11 @@ import {
   Linkedin,
   Twitter,
   Github,
-  Award
+  Award,
+  Database,
+  RefreshCw,
+  Copy,
+  Check
 } from 'lucide-react';
 import { api } from '../../lib/api';
 import { PortfolioProject, ClientPartner, Inquiry, ServicePillar, TeamMember } from '../../types';
@@ -52,7 +56,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [authError, setAuthError] = useState('');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'projects' | 'clients' | 'team' | 'inquiries'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'projects' | 'clients' | 'team' | 'inquiries' | 'database'>('dashboard');
 
   // Data States
   const [stats, setStats] = useState<any>(null);
@@ -62,6 +66,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+
+  // Supabase State
+  const [supabaseStatus, setSupabaseStatus] = useState<{ connected: boolean; configured: boolean; url: string | null; message: string; tablesReady?: boolean; error?: string } | null>(null);
+  const [isCheckingSupabase, setIsCheckingSupabase] = useState(false);
+  const [isSyncingSupabase, setIsSyncingSupabase] = useState(false);
+  const [syncStatusMessage, setSyncStatusMessage] = useState<{ success: boolean; message: string } | null>(null);
+  const [copiedSql, setCopiedSql] = useState(false);
 
   // Edit / Create Modals
   const [editingProject, setEditingProject] = useState<Partial<PortfolioProject> | null>(null);
@@ -303,6 +314,53 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     }
   };
 
+  // Supabase Handlers
+  const handleCheckSupabase = async () => {
+    setIsCheckingSupabase(true);
+    setSyncStatusMessage(null);
+    try {
+      const status = await api.getSupabaseStatus();
+      setSupabaseStatus(status);
+    } catch (err: any) {
+      setSupabaseStatus({
+        connected: false,
+        configured: false,
+        url: null,
+        message: err.message || 'Failed to query Supabase status'
+      });
+    } finally {
+      setIsCheckingSupabase(false);
+    }
+  };
+
+  const handleSyncToSupabase = async () => {
+    setIsSyncingSupabase(true);
+    setSyncStatusMessage(null);
+    try {
+      const res = await api.syncToSupabase();
+      if (res.success) {
+        setSyncStatusMessage({
+          success: true,
+          message: res.message || 'Successfully synchronized all projects, partners, team, and inquiries to Supabase PostgreSQL!'
+        });
+        showNotification('Database successfully synchronized to Supabase.');
+        handleCheckSupabase();
+      } else {
+        setSyncStatusMessage({
+          success: false,
+          message: res.error || 'Failed to sync records to Supabase'
+        });
+      }
+    } catch (err: any) {
+      setSyncStatusMessage({
+        success: false,
+        message: err.message || 'Synchronization failed'
+      });
+    } finally {
+      setIsSyncingSupabase(false);
+    }
+  };
+
   // ---------------- DELETE EXECUTION ----------------
   const executeDelete = async () => {
     if (!deleteConfirm) return;
@@ -508,6 +566,26 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 </div>
                 {inquiries.filter(i => i.status === 'new').length > 0 && (
                   <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('database');
+                  handleCheckSupabase();
+                }}
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-left whitespace-nowrap ${
+                  activeTab === 'database'
+                    ? 'bg-neutral-800 text-white font-semibold border border-neutral-700/60'
+                    : 'text-neutral-400 hover:text-white hover:bg-neutral-800/40'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Database className="w-4 h-4 text-emerald-400" />
+                  <span>Database & Cloud</span>
+                </div>
+                {supabaseStatus?.connected && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 )}
               </button>
             </div>
@@ -1216,6 +1294,277 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 5: DATABASE & CLOUD SUPABASE ARCHITECTURE */}
+              {activeTab === 'database' && (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-bold text-white font-display flex items-center gap-2.5">
+                        <Database className="w-5 h-5 text-emerald-400" />
+                        <span>Supabase & PostgreSQL Persistence</span>
+                      </h2>
+                      <p className="text-xs text-neutral-400">
+                        Manage your dual-persistence architecture: local JSON file storage with live synchronization to Supabase PostgreSQL.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleCheckSupabase}
+                        disabled={isCheckingSupabase}
+                        className="px-3 py-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white font-mono text-xs flex items-center gap-2 border border-neutral-700 transition-all disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isCheckingSupabase ? 'animate-spin text-cyan-400' : 'text-slate-400'}`} />
+                        <span>{isCheckingSupabase ? 'Verifying...' : 'Check Connection'}</span>
+                      </button>
+
+                      <button
+                        onClick={handleSyncToSupabase}
+                        disabled={isSyncingSupabase}
+                        className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold text-xs flex items-center gap-2 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50"
+                      >
+                        <RefreshCw className={`w-3.5 h-3.5 ${isSyncingSupabase ? 'animate-spin' : ''}`} />
+                        <span>{isSyncingSupabase ? 'Syncing...' : 'Sync All Data to Supabase'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Status Banner */}
+                  <div className={`p-5 rounded-2xl border transition-all ${
+                    supabaseStatus?.connected
+                      ? 'bg-emerald-950/30 border-emerald-800/60'
+                      : 'bg-neutral-900/60 border-neutral-800'
+                  }`}>
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2.5">
+                          <span className={`w-2.5 h-2.5 rounded-full ${supabaseStatus?.connected ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+                          <span className="font-bold text-sm text-white">
+                            {supabaseStatus?.connected
+                              ? 'Connected to Supabase PostgreSQL'
+                              : supabaseStatus?.configured
+                              ? 'Credentials Detected — Tables Initialization Required'
+                              : 'Supabase Standby Mode (Active Local Storage)'}
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-800 text-neutral-300 border border-neutral-700">
+                            Dual-Storage Engine
+                          </span>
+                        </div>
+                        <p className="text-xs text-neutral-400">
+                          {supabaseStatus?.message || 'The application operates with resilient local JSON storage by default and seamlessly synchronizes with Supabase PostgreSQL cloud database.'}
+                        </p>
+                        {supabaseStatus?.url && (
+                          <div className="text-[11px] font-mono text-emerald-400/90 pt-1">
+                            Endpoint: {supabaseStatus.url}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-[10px] font-mono uppercase text-neutral-400">Current Records</div>
+                          <div className="text-xs font-semibold text-white mt-0.5">
+                            {projects.length} Projects · {clients.length} Partners · {teamMembers.length} Team · {inquiries.length} Inquiries
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {syncStatusMessage && (
+                      <div className={`mt-4 p-3.5 rounded-xl text-xs flex items-center gap-2.5 border ${
+                        syncStatusMessage.success
+                          ? 'bg-emerald-950/70 border-emerald-800 text-emerald-200'
+                          : 'bg-rose-950/70 border-rose-800 text-rose-200'
+                      }`}>
+                        {syncStatusMessage.success ? (
+                          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                        )}
+                        <span>{syncStatusMessage.message}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Schema & Quick Setup Instructions */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    {/* Setup Card */}
+                    <div className="p-5 rounded-2xl bg-neutral-900/40 border border-neutral-800 space-y-4">
+                      <div className="flex items-center gap-2 text-white font-bold text-sm">
+                        <Zap className="w-4 h-4 text-amber-400" />
+                        <span>Supabase Quick Integration Guide</span>
+                      </div>
+
+                      <ol className="space-y-3 text-xs text-neutral-300 list-decimal list-inside leading-relaxed">
+                        <li>
+                          Create a free Supabase project at <a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline hover:text-cyan-300">supabase.com</a>.
+                        </li>
+                        <li>
+                          Open your Supabase <strong>SQL Editor</strong> and run the SQL table schema (provided on the right).
+                        </li>
+                        <li>
+                          In AI Studio <strong>Settings & Secrets</strong>, set your environment variables:
+                          <div className="mt-2 p-2.5 rounded-lg bg-neutral-950 border border-neutral-800 font-mono text-[11px] text-neutral-400 space-y-1">
+                            <div>SUPABASE_URL=https://your-ref.supabase.co</div>
+                            <div>SUPABASE_SERVICE_ROLE_KEY=your-service-role-key</div>
+                            <div>SUPABASE_ANON_KEY=your-anon-key</div>
+                          </div>
+                        </li>
+                        <li>
+                          Click <strong>Sync All Data to Supabase</strong> above to export all existing case studies, clients, and inquiries.
+                        </li>
+                      </ol>
+                    </div>
+
+                    {/* SQL Schema Exporter */}
+                    <div className="p-5 rounded-2xl bg-neutral-900/40 border border-neutral-800 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-white font-bold text-sm">
+                          <Layers className="w-4 h-4 text-cyan-400" />
+                          <span>Supabase Table Schema (SQL)</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const sql = `-- Velora Labs Supabase Schema
+CREATE TABLE IF NOT EXISTS public.projects (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  tagline TEXT,
+  client_name TEXT,
+  category TEXT NOT NULL DEFAULT 'website',
+  sub_category TEXT,
+  services JSONB DEFAULT '[]'::jsonb,
+  technologies JSONB DEFAULT '[]'::jsonb,
+  cover_image TEXT,
+  gallery JSONB DEFAULT '[]'::jsonb,
+  summary TEXT,
+  challenge TEXT,
+  solution TEXT,
+  results JSONB DEFAULT '[]'::jsonb,
+  external_url TEXT,
+  is_featured BOOLEAN DEFAULT false,
+  is_published BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 1,
+  seo_title TEXT,
+  seo_description TEXT,
+  testimonial JSONB DEFAULT '{}'::jsonb,
+  published_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.clients (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  logo TEXT,
+  website TEXT,
+  description TEXT,
+  category TEXT DEFAULT 'client',
+  relationship_type TEXT,
+  is_featured BOOLEAN DEFAULT false,
+  is_published BOOLEAN DEFAULT true,
+  display_order INTEGER DEFAULT 1,
+  seo_title TEXT,
+  seo_description TEXT,
+  testimonial JSONB DEFAULT '{}'::jsonb,
+  linked_project_slugs JSONB DEFAULT '[]'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.team (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  specialty TEXT,
+  bio TEXT,
+  avatar TEXT,
+  experience TEXT,
+  display_order INTEGER DEFAULT 1,
+  is_published BOOLEAN DEFAULT true,
+  social_linkedin TEXT,
+  social_twitter TEXT,
+  social_github TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.inquiries (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  company TEXT,
+  service TEXT,
+  budget TEXT,
+  timeline TEXT,
+  message TEXT,
+  status TEXT DEFAULT 'new',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);`;
+                            navigator.clipboard.writeText(sql);
+                            setCopiedSql(true);
+                            setTimeout(() => setCopiedSql(false), 2000);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-mono text-[11px] flex items-center gap-1.5 border border-neutral-700 transition-colors"
+                        >
+                          {copiedSql ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-400" />
+                              <span className="text-emerald-400">Copied SQL</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>Copy Schema SQL</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      <pre className="p-3.5 rounded-xl bg-neutral-950 border border-neutral-800 text-[10px] font-mono text-neutral-400 overflow-x-auto max-h-56 select-all">
+{`-- 1. Projects Table
+CREATE TABLE IF NOT EXISTS public.projects (
+  id TEXT PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'website',
+  services JSONB DEFAULT '[]'::jsonb,
+  technologies JSONB DEFAULT '[]'::jsonb,
+  is_featured BOOLEAN DEFAULT false,
+  is_published BOOLEAN DEFAULT true, ...
+);
+
+-- 2. Clients / Partners Table
+CREATE TABLE IF NOT EXISTS public.clients (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  logo TEXT,
+  relationship_type TEXT, ...
+);
+
+-- 3. Team Members Table
+CREATE TABLE IF NOT EXISTS public.team (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  specialty TEXT, ...
+);
+
+-- 4. Inquiries Table
+CREATE TABLE IF NOT EXISTS public.inquiries (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  service TEXT,
+  status TEXT DEFAULT 'new', ...
+);`}
+                      </pre>
+                    </div>
                   </div>
                 </div>
               )}
