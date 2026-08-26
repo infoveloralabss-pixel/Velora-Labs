@@ -4,6 +4,10 @@ import {
   LayoutDashboard,
   FolderKanban,
   Users2,
+  Users,
+  UserPlus,
+  UserCheck,
+  UserX,
   Inbox,
   Plus,
   Trash2,
@@ -24,10 +28,15 @@ import {
   Zap,
   Layers,
   Mail,
-  Send
+  Send,
+  Linkedin,
+  Twitter,
+  Github,
+  Award
 } from 'lucide-react';
 import { api } from '../../lib/api';
-import { PortfolioProject, ClientPartner, Inquiry, ServicePillar } from '../../types';
+import { PortfolioProject, ClientPartner, Inquiry, ServicePillar, TeamMember } from '../../types';
+import { ImageUploadField } from './ImageUploadField';
 
 interface AdminPortalProps {
   isOpen: boolean;
@@ -43,12 +52,13 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [authError, setAuthError] = useState('');
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'projects' | 'clients' | 'inquiries'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'projects' | 'clients' | 'team' | 'inquiries'>('dashboard');
 
   // Data States
   const [stats, setStats] = useState<any>(null);
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [clients, setClients] = useState<ClientPartner[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
@@ -56,7 +66,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Edit / Create Modals
   const [editingProject, setEditingProject] = useState<Partial<PortfolioProject> | null>(null);
   const [editingClient, setEditingClient] = useState<Partial<ClientPartner> | null>(null);
-  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'project' | 'client' | 'inquiry'; id: string; name: string } | null>(null);
+  const [editingTeamMember, setEditingTeamMember] = useState<Partial<TeamMember> | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'project' | 'client' | 'team' | 'inquiry'; id: string; name: string } | null>(null);
 
   // SMTP Testing State
   const [isTestingSmtp, setIsTestingSmtp] = useState(false);
@@ -65,6 +76,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   // Search in Admin
   const [projectSearch, setProjectSearch] = useState('');
   const [clientSearch, setClientSearch] = useState('');
+  const [teamSearch, setTeamSearch] = useState('');
 
   // Check existing token
   useEffect(() => {
@@ -79,15 +91,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     if (!isAuthenticated) return;
     setIsLoading(true);
     try {
-      const [statsData, projectsData, clientsData, inquiriesData] = await Promise.all([
+      const [statsData, projectsData, clientsData, teamData, inquiriesData] = await Promise.all([
         api.getStats(),
         api.getProjects({}),
         api.getClients({}),
+        api.getTeam({}),
         api.getInquiries(),
       ]);
       setStats(statsData);
       setProjects(projectsData);
       setClients(clientsData);
+      setTeamMembers(teamData);
       setInquiries(inquiriesData);
     } catch (err) {
       console.error('Failed to load admin data', err);
@@ -198,6 +212,55 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     }
   };
 
+  // ---------------- TEAM (PEOPLE) CRUD ----------------
+  const handleSaveTeamMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTeamMember || !editingTeamMember.name || !editingTeamMember.role) return;
+
+    const payload = {
+      ...editingTeamMember,
+      displayOrder: parseInt(String(editingTeamMember.displayOrder), 10) || 1,
+      isPublished: editingTeamMember.isPublished !== false
+    };
+
+    try {
+      if (editingTeamMember.id) {
+        await api.updateTeamMember(editingTeamMember.id, payload);
+        showNotification(`Team member "${editingTeamMember.name}" updated (Position #${payload.displayOrder}).`);
+      } else {
+        await api.createTeamMember(payload);
+        showNotification(`New team member "${editingTeamMember.name}" added at Position #${payload.displayOrder}.`);
+      }
+      setEditingTeamMember(null);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to save team member');
+    }
+  };
+
+  const handleUpdateTeamOrder = async (member: TeamMember, delta: number) => {
+    const current = Number(member.displayOrder) || 1;
+    const newOrder = Math.max(1, current + delta);
+    if (newOrder === current) return;
+    try {
+      await api.updateTeamMember(member.id, { displayOrder: newOrder });
+      showNotification(`Position for "${member.name}" set to #${newOrder}.`);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to update position');
+    }
+  };
+
+  const handleToggleTeamPublish = async (member: TeamMember) => {
+    try {
+      await api.updateTeamMember(member.id, { isPublished: !member.isPublished });
+      showNotification(`Team member "${member.name}" ${!member.isPublished ? 'published to About page' : 'hidden'}.`);
+      loadData();
+    } catch (err: any) {
+      alert(err.message);
+    }
+  };
+
   // ---------------- INQUIRY CRUD & SMTP ----------------
   const handleUpdateInquiryStatus = async (id: string, status: Inquiry['status']) => {
     try {
@@ -250,6 +313,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       } else if (deleteConfirm.type === 'client') {
         await api.deleteClient(deleteConfirm.id);
         showNotification(`Client "${deleteConfirm.name}" permanently deleted.`);
+      } else if (deleteConfirm.type === 'team') {
+        await api.deleteTeamMember(deleteConfirm.id);
+        showNotification(`Team member "${deleteConfirm.name}" permanently removed.`);
       } else if (deleteConfirm.type === 'inquiry') {
         await api.deleteInquiry(deleteConfirm.id);
         showNotification('Inquiry deleted.');
@@ -415,6 +481,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </button>
 
               <button
+                onClick={() => setActiveTab('team')}
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-left whitespace-nowrap ${
+                  activeTab === 'team'
+                    ? 'bg-neutral-800 text-white font-semibold border border-neutral-700/60'
+                    : 'text-neutral-400 hover:text-white hover:bg-neutral-800/40'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Users className="w-4 h-4 text-cyan-400" />
+                  <span>Team / People ({teamMembers.length})</span>
+                </div>
+              </button>
+
+              <button
                 onClick={() => setActiveTab('inquiries')}
                 className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all text-left whitespace-nowrap ${
                   activeTab === 'inquiries'
@@ -442,7 +522,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                       Platform Status & Metrics
                     </h2>
                     <p className="text-xs text-neutral-400">
-                      Live state of published case studies, partner relationships, and incoming RFPs.
+                      Live state of published case studies, partner relationships, leadership team, and incoming RFPs.
                     </p>
                   </div>
 
@@ -469,22 +549,22 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     </div>
 
                     <div className="p-4 rounded-2xl bg-neutral-900/50 border border-neutral-800">
+                      <div className="text-[11px] font-mono text-neutral-400 uppercase">Leadership Team</div>
+                      <div className="font-display font-bold text-2xl text-cyan-400 mt-1">
+                        {stats.totalTeam !== undefined ? stats.totalTeam : teamMembers.length}
+                      </div>
+                      <div className="text-[10px] text-neutral-400 mt-1">
+                        {stats.publishedTeam !== undefined ? stats.publishedTeam : teamMembers.filter(t => t.isPublished !== false).length} Active on About page
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-neutral-900/50 border border-neutral-800">
                       <div className="text-[11px] font-mono text-neutral-400 uppercase">Inbound Inquiries</div>
                       <div className="font-display font-bold text-2xl text-white mt-1">
                         {stats.totalInquiries}
                       </div>
                       <div className="text-[10px] text-rose-400 mt-1">
                         {stats.newInquiries} Awaiting Review
-                      </div>
-                    </div>
-
-                    <div className="p-4 rounded-2xl bg-neutral-900/50 border border-neutral-800">
-                      <div className="text-[11px] font-mono text-neutral-400 uppercase">Storage Mode</div>
-                      <div className="font-display font-bold text-lg text-indigo-300 mt-1">
-                        Persistent Store
-                      </div>
-                      <div className="text-[10px] text-neutral-400 mt-1">
-                        JSON DB / Instant Auto-Sync
                       </div>
                     </div>
                   </div>
@@ -563,6 +643,29 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>New Partner</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setEditingTeamMember({
+                          name: '',
+                          role: '',
+                          specialty: '',
+                          bio: '',
+                          experience: '',
+                          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                          displayOrder: teamMembers.length + 1,
+                          isPublished: true,
+                          socialLinkedin: '',
+                          socialTwitter: '',
+                          socialGithub: ''
+                        });
+                        setActiveTab('team');
+                      }}
+                      className="px-4 py-2 rounded-xl bg-cyan-950/70 border border-cyan-500/30 hover:bg-cyan-900/60 text-cyan-300 text-xs font-medium flex items-center gap-1.5 transition-colors"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      <span>New Team Member</span>
                     </button>
                   </div>
                 </div>
@@ -767,6 +870,231 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* TAB: PEOPLE & LEADERSHIP TEAM MANAGEMENT */}
+              {activeTab === 'team' && (
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="text-xl font-bold text-white font-display">
+                        Leadership & Team Members ({teamMembers.length})
+                      </h2>
+                      <p className="text-xs text-neutral-400">
+                        Add, edit, reorder, and manage senior partners & domain leaders showcased on the public About page.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
+                        <input
+                          type="text"
+                          placeholder="Search people..."
+                          value={teamSearch}
+                          onChange={(e) => setTeamSearch(e.target.value)}
+                          className="pl-8 pr-3 py-1.5 rounded-xl bg-neutral-900 border border-neutral-800 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-cyan-500/50 w-44 sm:w-52"
+                        />
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          setEditingTeamMember({
+                            name: '',
+                            role: '',
+                            specialty: '',
+                            bio: '',
+                            experience: '',
+                            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                            displayOrder: teamMembers.length + 1,
+                            isPublished: true,
+                            socialLinkedin: '',
+                            socialTwitter: '',
+                            socialGithub: ''
+                          })
+                        }
+                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-400 hover:from-cyan-300 hover:to-indigo-300 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shadow-cyan-500/20"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>Add Team Member</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Team Tab Header & Explainer */}
+                  <div className="p-4 rounded-2xl bg-cyan-950/20 border border-cyan-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div className="space-y-0.5">
+                      <div className="font-bold text-white flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                        <span>Dynamic Team Hierarchy & Ordering</span>
+                      </div>
+                      <p className="text-neutral-400 text-[11px]">
+                        Position numbers (1, 2, 3, 4...) control the exact display sequence on the public About page. The top 4 positions serve as featured Core Leadership, with the full roster available via the "View All Team" expansion button.
+                      </p>
+                    </div>
+                    <span className="font-mono text-[10px] text-cyan-400 bg-cyan-950/80 px-2 py-1 rounded border border-cyan-800/60 shrink-0">
+                      {teamMembers.length} Registered
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[...teamMembers]
+                      .sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999))
+                      .filter((m) => {
+                        if (!teamSearch.trim()) return true;
+                        const q = teamSearch.toLowerCase();
+                        return (
+                          m.name?.toLowerCase().includes(q) ||
+                          m.role?.toLowerCase().includes(q) ||
+                          m.specialty?.toLowerCase().includes(q) ||
+                          m.experience?.toLowerCase().includes(q)
+                        );
+                      })
+                      .map((member) => (
+                        <div
+                          key={member.id}
+                          className="p-5 rounded-2xl bg-neutral-900/50 border border-neutral-800 flex flex-col justify-between space-y-4 hover:border-neutral-700 transition-all group"
+                        >
+                          <div className="space-y-3.5">
+                            <div className="flex items-start gap-3.5">
+                              <div className="w-14 h-14 rounded-xl overflow-hidden bg-neutral-950 border border-neutral-800 shrink-0 relative">
+                                <img
+                                  src={member.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80'}
+                                  alt={member.name}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-1">
+                                  <h4 className="font-bold text-sm text-white truncate">{member.name}</h4>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => handleUpdateTeamOrder(member, -1)}
+                                      disabled={(Number(member.displayOrder) || 1) <= 1}
+                                      className="p-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 disabled:opacity-30 disabled:cursor-not-allowed text-[10px]"
+                                      title="Move Up in Sequence"
+                                    >
+                                      ▲
+                                    </button>
+                                    <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-800/60 font-semibold" title="Position on About page">
+                                      #{member.displayOrder || 1}
+                                    </span>
+                                    <button
+                                      onClick={() => handleUpdateTeamOrder(member, 1)}
+                                      className="p-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300 text-[10px]"
+                                      title="Move Down in Sequence"
+                                    >
+                                      ▼
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="text-xs font-mono text-indigo-300 truncate">{member.role}</div>
+                                <div className="text-[11px] font-mono text-neutral-400 truncate mt-0.5">{member.specialty}</div>
+                              </div>
+                            </div>
+
+                            <p className="text-xs text-neutral-300 line-clamp-3 leading-relaxed">
+                              {member.bio}
+                            </p>
+
+                            <div className="text-[11px] font-mono text-neutral-400 bg-neutral-950/80 p-2.5 rounded-xl border border-neutral-800/80">
+                              <span className="text-neutral-500 font-semibold">Track Record:</span> {member.experience}
+                            </div>
+                          </div>
+
+                          <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2 text-neutral-500">
+                              {member.socialLinkedin && (
+                                <a
+                                  href={member.socialLinkedin}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="hover:text-indigo-400 transition-colors p-1"
+                                  title="LinkedIn Profile"
+                                >
+                                  <Linkedin className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                              {member.socialTwitter && (
+                                <a
+                                  href={member.socialTwitter}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="hover:text-cyan-400 transition-colors p-1"
+                                  title="Twitter Profile"
+                                >
+                                  <Twitter className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                              {member.socialGithub && (
+                                <a
+                                  href={member.socialGithub}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="hover:text-white transition-colors p-1"
+                                  title="GitHub Profile"
+                                >
+                                  <Github className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
+                              <button
+                                onClick={() => handleToggleTeamPublish(member)}
+                                className={`px-2 py-1 rounded-lg border text-[10px] font-mono transition-colors ${
+                                  member.isPublished !== false
+                                    ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
+                                    : 'bg-neutral-950 border-neutral-800 text-neutral-400'
+                                }`}
+                              >
+                                {member.isPublished !== false ? 'Live on About' : 'Hidden'}
+                              </button>
+                              <button
+                                onClick={() => setEditingTeamMember(member)}
+                                className="p-1.5 rounded-lg bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
+                                title="Edit Team Member"
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setDeleteConfirm({ type: 'team', id: member.id, name: member.name })}
+                                className="p-1.5 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800 hover:bg-rose-900/60 transition-colors"
+                                title="Remove Team Member"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+
+                  {teamMembers.length === 0 && (
+                    <div className="text-center py-12 rounded-2xl bg-neutral-900/30 border border-neutral-800 space-y-3">
+                      <Users className="w-8 h-8 text-neutral-600 mx-auto" />
+                      <p className="text-xs text-neutral-400">No team members currently registered.</p>
+                      <button
+                        onClick={() =>
+                          setEditingTeamMember({
+                            name: '',
+                            role: '',
+                            specialty: '',
+                            bio: '',
+                            experience: '',
+                            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                            displayOrder: 1,
+                            isPublished: true
+                          })
+                        }
+                        className="px-4 py-2 rounded-xl bg-cyan-400 text-neutral-950 font-bold text-xs"
+                      >
+                        Add First Team Member
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -976,16 +1304,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-mono uppercase text-neutral-400">Cover Image URL</label>
-                  <input
-                    type="url"
-                    placeholder="https://..."
-                    value={editingProject.coverImage || ''}
-                    onChange={(e) => setEditingProject({ ...editingProject, coverImage: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-white font-mono"
-                  />
-                </div>
+                <ImageUploadField
+                  label="Cover Image"
+                  value={editingProject.coverImage || ''}
+                  onChange={(val) => setEditingProject({ ...editingProject, coverImage: val })}
+                  aspectRatio="video"
+                  previewShape="rounded"
+                  helpText="Upload a high-res cover visual from device or supply a direct image link."
+                />
 
                 <div className="space-y-1">
                   <label className="font-mono uppercase text-neutral-400">Services (Comma Separated)</label>
@@ -1195,15 +1521,14 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-mono uppercase text-slate-400">Logo URL</label>
-                  <input
-                    type="url"
-                    value={editingClient.logo || ''}
-                    onChange={(e) => setEditingClient({ ...editingClient, logo: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white font-mono"
-                  />
-                </div>
+                <ImageUploadField
+                  label="Partner Logo / Avatar"
+                  value={editingClient.logo || ''}
+                  onChange={(val) => setEditingClient({ ...editingClient, logo: val })}
+                  aspectRatio="square"
+                  previewShape="rounded"
+                  helpText="Upload brand mark from device or provide web logo link."
+                />
 
                 <div className="space-y-1">
                   <label className="font-mono uppercase text-slate-400">Relationship Type</label>
@@ -1304,6 +1629,239 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                     className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-400 text-slate-950 font-bold"
                   >
                     Save Partner
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================= */}
+        {/* MODAL: CREATE / EDIT TEAM MEMBER */}
+        {/* ========================================================= */}
+        {editingTeamMember && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+            <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#080d1a] border border-cyan-900/40 p-6 space-y-4 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-display font-bold text-base text-white">
+                    {editingTeamMember.id ? `Edit Member: ${editingTeamMember.name}` : 'Add Leadership & Team Member'}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setEditingTeamMember(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveTeamMember} className="space-y-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1">
+                    <label className="font-mono uppercase text-slate-400">Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Julian Thorne"
+                      value={editingTeamMember.name || ''}
+                      onChange={(e) => setEditingTeamMember({ ...editingTeamMember, name: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:border-cyan-500/60 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-mono uppercase text-slate-400">Role / Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Principal & Head of Architecture"
+                      value={editingTeamMember.role || ''}
+                      onChange={(e) => setEditingTeamMember({ ...editingTeamMember, role: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:border-cyan-500/60 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="space-y-1">
+                    <label className="font-mono uppercase text-slate-400">Domain Specialty *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Distributed Systems & Cloud SaaS"
+                      value={editingTeamMember.specialty || ''}
+                      onChange={(e) => setEditingTeamMember({ ...editingTeamMember, specialty: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:border-cyan-500/60 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-mono uppercase text-slate-400">Past Experience / Pedigree *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Ex-Stripe Infrastructure, YC Alumni Lead"
+                      value={editingTeamMember.experience || ''}
+                      onChange={(e) => setEditingTeamMember({ ...editingTeamMember, experience: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white focus:border-cyan-500/60 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-mono uppercase text-slate-400">Bio Narrative *</label>
+                  <textarea
+                    rows={3}
+                    required
+                    placeholder="Brief background and leadership trajectory..."
+                    value={editingTeamMember.bio || ''}
+                    onChange={(e) => setEditingTeamMember({ ...editingTeamMember, bio: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-white resize-none focus:border-cyan-500/60 focus:outline-none"
+                  />
+                </div>
+
+                {/* Avatar Configuration with Device Upload, URL Scout & Presets */}
+                <ImageUploadField
+                  label="Avatar / Portrait Photo *"
+                  value={editingTeamMember.avatar || ''}
+                  onChange={(val) => setEditingTeamMember({ ...editingTeamMember, avatar: val })}
+                  aspectRatio="square"
+                  previewShape="rounded"
+                  helpText="Upload a portrait photo from your computer/device, enter a direct URL, or pick from executive presets."
+                  presets={[
+                    { label: 'Executive 1', url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80' },
+                    { label: 'Architect 2', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80' },
+                    { label: 'Creative 3', url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80' },
+                    { label: 'Engineer 4', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80' },
+                    { label: 'Strategist 5', url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80' },
+                    { label: 'Lead 6', url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80' },
+                  ]}
+                />
+
+                {/* Social Profiles */}
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+                  <div className="text-[11px] font-mono text-slate-400 uppercase font-semibold">
+                    Social & Professional Profiles (Optional)
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <Linkedin className="w-3 h-3 text-indigo-400" /> LinkedIn
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://linkedin.com/in/..."
+                        value={editingTeamMember.socialLinkedin || ''}
+                        onChange={(e) => setEditingTeamMember({ ...editingTeamMember, socialLinkedin: e.target.value })}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono text-[11px]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <Twitter className="w-3 h-3 text-cyan-400" /> Twitter / X
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://twitter.com/..."
+                        value={editingTeamMember.socialTwitter || ''}
+                        onChange={(e) => setEditingTeamMember({ ...editingTeamMember, socialTwitter: e.target.value })}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono text-[11px]"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-slate-400 flex items-center gap-1">
+                        <Github className="w-3 h-3 text-white" /> GitHub
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://github.com/..."
+                        value={editingTeamMember.socialGithub || ''}
+                        onChange={(e) => setEditingTeamMember({ ...editingTeamMember, socialGithub: e.target.value })}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-white font-mono text-[11px]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Display Order and Publish Toggle */}
+                <div className="p-3.5 rounded-2xl bg-cyan-950/20 border border-cyan-900/40 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="space-y-0.5">
+                      <label className="font-mono uppercase text-slate-300 text-[11px] font-bold flex items-center gap-1.5">
+                        <span>Position / Sequence on About Page</span>
+                        <span className="text-[10px] font-normal text-cyan-400 bg-cyan-950/80 px-1.5 py-0.2 rounded border border-cyan-800/60">
+                          #{editingTeamMember.displayOrder || 1}
+                        </span>
+                      </label>
+                      <p className="text-[10px] text-slate-400">
+                        1 = First, 2 = Second, 3 = Third, 4 = Fourth. Positions 1-4 are featured as Core Leadership.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setEditingTeamMember({
+                          ...editingTeamMember,
+                          displayOrder: Math.max(1, (editingTeamMember.displayOrder || 1) - 1)
+                        })}
+                        className="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min={1}
+                        max={99}
+                        value={editingTeamMember.displayOrder || 1}
+                        onChange={(e) => setEditingTeamMember({ ...editingTeamMember, displayOrder: Math.max(1, parseInt(e.target.value, 10) || 1) })}
+                        className="w-16 px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-white text-center font-mono text-xs font-bold"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setEditingTeamMember({
+                          ...editingTeamMember,
+                          displayOrder: (editingTeamMember.displayOrder || 1) + 1
+                        })}
+                        className="px-2 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={editingTeamMember.isPublished !== false}
+                        onChange={(e) => setEditingTeamMember({ ...editingTeamMember, isPublished: e.target.checked })}
+                        className="rounded border-slate-800 text-cyan-500 focus:ring-cyan-400"
+                      />
+                      <span className="font-semibold text-slate-200 text-xs">Published (Visible on public About page)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setEditingTeamMember(null)}
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 to-indigo-400 hover:from-cyan-300 hover:to-indigo-300 text-slate-950 font-bold transition-all shadow-md shadow-cyan-500/20"
+                  >
+                    {editingTeamMember.id ? 'Save Changes' : 'Add Team Member'}
                   </button>
                 </div>
               </form>

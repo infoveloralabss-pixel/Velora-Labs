@@ -173,36 +173,48 @@ export const AGENCY_SERVICES: ServiceDetail[] = [
 
 export const AGENCY_TEAM: TeamMember[] = [
   {
+    id: 'team-1',
     name: 'Julian Thorne',
     role: 'Principal & Head of Architecture',
     specialty: 'Distributed Systems & SaaS Engineering',
     bio: 'Former senior systems architect with 12+ years building multi-tenant SaaS platforms scaling to millions of daily requests.',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    experience: 'Ex-Stripe Infrastructure, YC Alumni Lead'
+    experience: 'Ex-Stripe Infrastructure, YC Alumni Lead',
+    displayOrder: 1,
+    isPublished: true
   },
   {
+    id: 'team-2',
     name: 'Soren Lindqvist',
     role: 'Partner & Head of Automation',
     specialty: 'Enterprise Workflow Systems & n8n / GHL',
     bio: 'Architect of high-volume autonomous business pipelines processing over $200M in annual transactional deal flow.',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-    experience: 'n8n Core Specialist, Enterprise Systems Consultant'
+    experience: 'n8n Core Specialist, Enterprise Systems Consultant',
+    displayOrder: 2,
+    isPublished: true
   },
   {
+    id: 'team-3',
     name: 'Maya Lin-Castillo',
     role: 'Design Director & UX Strategist',
     specialty: 'Design Systems & Conversion Optimization',
     bio: 'Pioneered editorial digital experiences and high-conversion e-commerce storefronts for global heritage and modern DTC brands.',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
-    experience: 'Awwwards Judge 2023-2024, Ex-Pentagram Digital'
+    experience: 'Awwwards Judge 2023-2024, Ex-Pentagram Digital',
+    displayOrder: 3,
+    isPublished: true
   },
   {
+    id: 'team-4',
     name: 'Darius Vance',
     role: 'Partner & Head of Growth',
     specialty: 'Paid Acquisition & Attribution Modeling',
     bio: 'Scaled 14 B2B and consumer brands from seed to Series B with over $35M in profitable managed ad spend.',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-    experience: 'Ex-Growth Lead at FinTech Scaleups'
+    experience: 'Ex-Growth Lead at FinTech Scaleups',
+    displayOrder: 4,
+    isPublished: true
   }
 ];
 

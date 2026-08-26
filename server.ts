@@ -412,6 +412,65 @@ const INITIAL_INQUIRIES = [
   }
 ];
 
+const INITIAL_TEAM = [
+  {
+    id: "team-1",
+    name: "Julian Thorne",
+    role: "Principal & Head of Architecture",
+    specialty: "Distributed Systems & SaaS Engineering",
+    bio: "Former senior systems architect with 12+ years building multi-tenant SaaS platforms scaling to millions of daily requests.",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    experience: "Ex-Stripe Infrastructure, YC Alumni Lead",
+    displayOrder: 1,
+    isPublished: true,
+    socialLinkedin: "https://linkedin.com",
+    socialTwitter: "https://x.com",
+    socialGithub: "https://github.com"
+  },
+  {
+    id: "team-2",
+    name: "Soren Lindqvist",
+    role: "Partner & Head of Automation",
+    specialty: "Enterprise Workflow Systems & n8n / GHL",
+    bio: "Architect of high-volume autonomous business pipelines processing over $200M in annual transactional deal flow.",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    experience: "n8n Core Specialist, Enterprise Systems Consultant",
+    displayOrder: 2,
+    isPublished: true,
+    socialLinkedin: "https://linkedin.com",
+    socialTwitter: "https://x.com",
+    socialGithub: "https://github.com"
+  },
+  {
+    id: "team-3",
+    name: "Maya Lin-Castillo",
+    role: "Design Director & UX Strategist",
+    specialty: "Design Systems & Conversion Optimization",
+    bio: "Pioneered editorial digital experiences and high-conversion e-commerce storefronts for global heritage and modern DTC brands.",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    experience: "Awwwards Judge 2023-2024, Ex-Pentagram Digital",
+    displayOrder: 3,
+    isPublished: true,
+    socialLinkedin: "https://linkedin.com",
+    socialTwitter: "https://x.com",
+    socialGithub: "https://github.com"
+  },
+  {
+    id: "team-4",
+    name: "Darius Vance",
+    role: "Partner & Head of Growth",
+    specialty: "Paid Acquisition & Attribution Modeling",
+    bio: "Scaled 14 B2B and consumer brands from seed to Series B with over $35M in profitable managed ad spend.",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+    experience: "Ex-Growth Lead at FinTech Scaleups",
+    displayOrder: 4,
+    isPublished: true,
+    socialLinkedin: "https://linkedin.com",
+    socialTwitter: "https://x.com",
+    socialGithub: "https://github.com"
+  }
+];
+
 // Persistent File Storage Helper
 const DATA_DIR = path.join(process.cwd(), "data");
 const DB_FILE = path.join(DATA_DIR, "store.json");
@@ -420,12 +479,14 @@ interface DatabaseSchema {
   projects: typeof INITIAL_PROJECTS;
   clients: typeof INITIAL_CLIENTS;
   inquiries: typeof INITIAL_INQUIRIES;
+  team: typeof INITIAL_TEAM;
 }
 
 let dbData: DatabaseSchema = {
   projects: INITIAL_PROJECTS,
   clients: INITIAL_CLIENTS,
   inquiries: INITIAL_INQUIRIES,
+  team: INITIAL_TEAM,
 };
 
 function loadDatabase() {
@@ -437,8 +498,19 @@ function loadDatabase() {
       const raw = fs.readFileSync(DB_FILE, "utf-8");
       const parsed = JSON.parse(raw);
       if (parsed.projects && Array.isArray(parsed.projects)) {
-        dbData = parsed;
-        console.log(`[Storage] Loaded ${dbData.projects.length} projects, ${dbData.clients.length} clients from store.json`);
+        dbData = {
+          projects: parsed.projects,
+          clients: Array.isArray(parsed.clients) ? parsed.clients : INITIAL_CLIENTS,
+          inquiries: Array.isArray(parsed.inquiries) ? parsed.inquiries : INITIAL_INQUIRIES,
+          team: Array.isArray(parsed.team) && parsed.team.length > 0
+            ? parsed.team.map((t: any, i: number) => ({
+                ...t,
+                displayOrder: Number(t.displayOrder) || i + 1,
+                isPublished: t.isPublished !== false
+              }))
+            : INITIAL_TEAM,
+        };
+        console.log(`[Storage] Loaded ${dbData.projects.length} projects, ${dbData.clients.length} clients, ${dbData.team.length} team members from store.json`);
         return;
       }
     }
@@ -470,6 +542,8 @@ app.get("/api/stats", (req, res) => {
   const featuredProjects = dbData.projects.filter(p => p.isFeatured && p.isPublished).length;
   const totalClients = dbData.clients.length;
   const publishedClients = dbData.clients.filter(c => c.isPublished).length;
+  const totalTeam = dbData.team.length;
+  const publishedTeam = dbData.team.filter(t => t.isPublished !== false).length;
   const totalInquiries = dbData.inquiries.length;
   const newInquiries = dbData.inquiries.filter(i => i.status === "new").length;
 
@@ -486,6 +560,8 @@ app.get("/api/stats", (req, res) => {
     featuredProjects,
     totalClients,
     publishedClients,
+    totalTeam,
+    publishedTeam,
     totalInquiries,
     newInquiries,
     categoryDistribution
@@ -715,6 +791,111 @@ app.delete("/api/clients/:id", (req, res) => {
   }
   saveDatabase();
   res.json({ success: true, message: "Client deleted successfully" });
+});
+
+// 4. Team Members CRUD
+app.get("/api/team", (req, res) => {
+  const { published, search } = req.query;
+  let list = [...dbData.team];
+
+  if (published === "true") {
+    list = list.filter(t => t.isPublished !== false);
+  } else if (published === "false") {
+    list = list.filter(t => t.isPublished === false);
+  }
+
+  if (search && typeof search === "string" && search.trim() !== "") {
+    const q = search.toLowerCase().trim();
+    list = list.filter(t =>
+      t.name.toLowerCase().includes(q) ||
+      t.role.toLowerCase().includes(q) ||
+      t.specialty.toLowerCase().includes(q) ||
+      t.bio.toLowerCase().includes(q) ||
+      t.experience.toLowerCase().includes(q)
+    );
+  }
+
+  list.sort((a, b) => (Number(a.displayOrder) || 999) - (Number(b.displayOrder) || 999));
+  res.json(list);
+});
+
+app.get("/api/team/:id", (req, res) => {
+  const { id } = req.params;
+  const member = dbData.team.find(t => t.id === id);
+  if (!member) {
+    return res.status(404).json({ error: "Team member not found" });
+  }
+  res.json(member);
+});
+
+app.post("/api/team", (req, res) => {
+  try {
+    const data = req.body;
+    if (!data.name || !data.role) {
+      return res.status(400).json({ error: "Name and role are required" });
+    }
+
+    const orderNum = data.displayOrder !== undefined ? (parseInt(String(data.displayOrder), 10) || dbData.team.length + 1) : dbData.team.length + 1;
+
+    const newMember = {
+      id: "team-" + Date.now(),
+      name: data.name,
+      role: data.role,
+      specialty: data.specialty || "Senior Systems Specialist",
+      bio: data.bio || "",
+      avatar: data.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      experience: data.experience || "Industry Veteran",
+      displayOrder: orderNum,
+      isPublished: data.isPublished !== undefined ? !!data.isPublished : true,
+      socialLinkedin: data.socialLinkedin || "",
+      socialTwitter: data.socialTwitter || "",
+      socialGithub: data.socialGithub || ""
+    };
+
+    dbData.team.push(newMember);
+    saveDatabase();
+    res.status(201).json(newMember);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || "Failed to create team member" });
+  }
+});
+
+app.put("/api/team/:id", (req, res) => {
+  const { id } = req.params;
+  const index = dbData.team.findIndex(t => t.id === id);
+  if (index === -1) {
+    return res.status(404).json({ error: "Team member not found" });
+  }
+
+  const existing = dbData.team[index];
+  const data = req.body;
+
+  const orderNum = data.displayOrder !== undefined
+    ? (parseInt(String(data.displayOrder), 10) || existing.displayOrder || 1)
+    : (existing.displayOrder || 1);
+
+  const updatedMember = {
+    ...existing,
+    ...data,
+    displayOrder: orderNum,
+    isPublished: data.isPublished !== undefined ? !!data.isPublished : existing.isPublished,
+    id: existing.id
+  };
+
+  dbData.team[index] = updatedMember;
+  saveDatabase();
+  res.json(updatedMember);
+});
+
+app.delete("/api/team/:id", (req, res) => {
+  const { id } = req.params;
+  const initialLength = dbData.team.length;
+  dbData.team = dbData.team.filter(t => t.id !== id);
+  if (dbData.team.length === initialLength) {
+    return res.status(404).json({ error: "Team member not found" });
+  }
+  saveDatabase();
+  res.json({ success: true, message: "Team member deleted successfully" });
 });
 
 // =========================================================

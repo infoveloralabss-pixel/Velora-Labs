@@ -12,7 +12,7 @@ import { Contact } from './components/pages/Contact';
 import { AIConsultantModal } from './components/ai/AIConsultantModal';
 import { AdminPortal } from './components/admin/AdminPortal';
 import { api } from './lib/api';
-import { PortfolioProject, ClientPartner } from './types';
+import { PortfolioProject, ClientPartner, TeamMember } from './types';
 import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export default function App() {
@@ -20,6 +20,7 @@ export default function App() {
   const [routeParam, setRouteParam] = useState<string | undefined>(undefined);
   const [projects, setProjects] = useState<PortfolioProject[]>([]);
   const [clients, setClients] = useState<ClientPartner[]>([]);
+  const [team, setTeam] = useState<TeamMember[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -33,12 +34,14 @@ export default function App() {
     try {
       setIsLoading(true);
       setLoadError(null);
-      const [projectsData, clientsData] = await Promise.all([
+      const [projectsData, clientsData, teamData] = await Promise.all([
         api.getProjects({}),
         api.getClients({}),
+        api.getTeam({}),
       ]);
       setProjects(projectsData);
       setClients(clientsData);
+      setTeam(teamData);
     } catch (err: any) {
       console.error('Data load error:', err);
       setLoadError('Failed to load portfolio database. Please check your connection.');
@@ -166,6 +169,7 @@ export default function App() {
 
               {currentRoute === 'about' && (
                 <About
+                  team={team}
                   navigate={navigate}
                   openAIConsultant={() => setIsAIModalOpen(true)}
                 />

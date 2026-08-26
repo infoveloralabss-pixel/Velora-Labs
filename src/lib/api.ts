@@ -1,4 +1,4 @@
-import { PortfolioProject, ClientPartner, Inquiry, AIChatMessage } from '../types';
+import { PortfolioProject, ClientPartner, Inquiry, AIChatMessage, TeamMember } from '../types';
 
 const API_BASE = '/api';
 
@@ -107,6 +107,51 @@ export const api = {
       method: 'DELETE',
     });
     if (!res.ok) throw new Error('Failed to delete client');
+    return res.json();
+  },
+
+  // Team / People
+  async getTeam(params?: { search?: string; published?: boolean }): Promise<TeamMember[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.published !== undefined) searchParams.set('published', String(params.published));
+
+    const res = await fetch(`${API_BASE}/team?${searchParams.toString()}`);
+    if (!res.ok) throw new Error('Failed to fetch team members');
+    return res.json();
+  },
+
+  async createTeamMember(member: Partial<TeamMember>): Promise<TeamMember> {
+    const res = await fetch(`${API_BASE}/team`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(member),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to add team member');
+    }
+    return res.json();
+  },
+
+  async updateTeamMember(id: string, updates: Partial<TeamMember>): Promise<TeamMember> {
+    const res = await fetch(`${API_BASE}/team/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Failed to update team member');
+    }
+    return res.json();
+  },
+
+  async deleteTeamMember(id: string): Promise<{ success: boolean }> {
+    const res = await fetch(`${API_BASE}/team/${id}`, {
+      method: 'DELETE',
+    });
+    if (!res.ok) throw new Error('Failed to delete team member');
     return res.json();
   },
 

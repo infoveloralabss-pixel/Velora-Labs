@@ -102,12 +102,18 @@ export interface ServiceDetail {
 }
 
 export interface TeamMember {
+  id: string;
   name: string;
   role: string;
   specialty: string;
   bio: string;
   avatar: string;
   experience: string;
+  displayOrder?: number;
+  isPublished?: boolean;
+  socialLinkedin?: string;
+  socialTwitter?: string;
+  socialGithub?: string;
 }
 
 export interface AIChatMessage {

@@ -137,8 +137,8 @@ export const Footer: React.FC<FooterProps> = ({
             <div className="space-y-2.5 text-xs text-slate-400">
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-slate-400" />
-                <a href="mailto:partners@veloralabs.com" className="hover:text-cyan-300 transition-colors">
-                  partners@veloralabs.com
+                <a href="mailto:info.veloralabss@gmail.com" className="hover:text-cyan-300 transition-colors">
+                  info.veloralabss@gmail.com
                 </a>
               </div>
               <div className="flex items-start gap-2">
