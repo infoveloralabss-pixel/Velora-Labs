@@ -1429,83 +1429,116 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         </div>
                         <button
                           onClick={() => {
-                            const sql = `-- Velora Labs Supabase Schema
+                            const sql = `-- Velora Labs Supabase PostgreSQL Production Schema
+
+-- 1. Projects Table
 CREATE TABLE IF NOT EXISTS public.projects (
   id TEXT PRIMARY KEY,
   slug TEXT UNIQUE NOT NULL,
   title TEXT NOT NULL,
-  tagline TEXT,
-  client_name TEXT,
+  tagline TEXT DEFAULT '',
+  client_name TEXT DEFAULT 'Confidential Partner',
+  client_logo TEXT DEFAULT '',
   category TEXT NOT NULL DEFAULT 'website',
-  sub_category TEXT,
+  sub_category TEXT DEFAULT '',
   services JSONB DEFAULT '[]'::jsonb,
   technologies JSONB DEFAULT '[]'::jsonb,
-  cover_image TEXT,
+  cover_image TEXT DEFAULT '',
   gallery JSONB DEFAULT '[]'::jsonb,
-  summary TEXT,
-  challenge TEXT,
-  solution TEXT,
+  summary TEXT DEFAULT '',
+  challenge TEXT DEFAULT '',
+  solution TEXT DEFAULT '',
   results JSONB DEFAULT '[]'::jsonb,
-  external_url TEXT,
+  external_url TEXT DEFAULT '',
   is_featured BOOLEAN DEFAULT false,
   is_published BOOLEAN DEFAULT true,
   display_order INTEGER DEFAULT 1,
-  seo_title TEXT,
-  seo_description TEXT,
+  seo_title TEXT DEFAULT '',
+  seo_description TEXT DEFAULT '',
+  meta_title TEXT DEFAULT '',
+  meta_description TEXT DEFAULT '',
   testimonial JSONB DEFAULT '{}'::jsonb,
   published_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 2. Clients / Partners Table
 CREATE TABLE IF NOT EXISTS public.clients (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  logo TEXT,
-  website TEXT,
-  description TEXT,
+  logo TEXT DEFAULT '',
+  website TEXT DEFAULT '',
+  description TEXT DEFAULT '',
   category TEXT DEFAULT 'client',
-  relationship_type TEXT,
+  relationship_type TEXT DEFAULT 'Digital Partner',
   is_featured BOOLEAN DEFAULT false,
   is_published BOOLEAN DEFAULT true,
   display_order INTEGER DEFAULT 1,
-  seo_title TEXT,
-  seo_description TEXT,
+  seo_title TEXT DEFAULT '',
+  seo_description TEXT DEFAULT '',
+  meta_title TEXT DEFAULT '',
+  meta_description TEXT DEFAULT '',
   testimonial JSONB DEFAULT '{}'::jsonb,
   linked_project_slugs JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 3. Team Members Table
 CREATE TABLE IF NOT EXISTS public.team (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   role TEXT NOT NULL,
-  specialty TEXT,
-  bio TEXT,
-  avatar TEXT,
-  experience TEXT,
+  specialty TEXT DEFAULT '',
+  bio TEXT DEFAULT '',
+  avatar TEXT DEFAULT '',
+  experience TEXT DEFAULT '',
   display_order INTEGER DEFAULT 1,
   is_published BOOLEAN DEFAULT true,
-  social_linkedin TEXT,
-  social_twitter TEXT,
-  social_github TEXT,
+  social_linkedin TEXT DEFAULT '',
+  social_twitter TEXT DEFAULT '',
+  social_github TEXT DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 4. Inquiries / RFPs Table
 CREATE TABLE IF NOT EXISTS public.inquiries (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
-  company TEXT,
-  service TEXT,
-  budget TEXT,
-  timeline TEXT,
-  message TEXT,
+  company TEXT DEFAULT 'Undisclosed',
+  service TEXT DEFAULT 'full_systems',
+  budget TEXT DEFAULT 'Flexible',
+  timeline TEXT DEFAULT 'Flexible',
+  message TEXT DEFAULT '',
   status TEXT DEFAULT 'new',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
-);`;
+);
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.team ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.inquiries ENABLE ROW LEVEL SECURITY;
+
+-- Grant Full Permissions for public anon and service roles
+CREATE POLICY "Public Read Access for Projects" ON public.projects FOR SELECT USING (true);
+CREATE POLICY "Public All Access for Projects" ON public.projects FOR ALL USING (true) WITH CHECK (true);
+
+CREATE POLICY "Public Read Access for Clients" ON public.clients FOR SELECT USING (true);
+CREATE POLICY "Public All Access for Clients" ON public.clients FOR ALL USING (true) WITH CHECK (true);
+
+CREATE POLICY "Public Read Access for Team" ON public.team FOR SELECT USING (true);
+CREATE POLICY "Public All Access for Team" ON public.team FOR ALL USING (true) WITH CHECK (true);
+
+CREATE POLICY "Public Read Access for Inquiries" ON public.inquiries FOR SELECT USING (true);
+CREATE POLICY "Public All Access for Inquiries" ON public.inquiries FOR ALL USING (true) WITH CHECK (true);
+
+-- Reload PostgREST schema cache
+NOTIFY pgrst, 'reload schema';`;
                             navigator.clipboard.writeText(sql);
                             setCopiedSql(true);
                             setTimeout(() => setCopiedSql(false), 2000);

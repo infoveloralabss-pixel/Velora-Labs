@@ -1,4 +1,4 @@
-import { ServiceDetail, TeamMember } from '../types';
+import { ServiceDetail, TeamMember, PortfolioProject, ClientPartner } from '../types';
 
 export const AGENCY_SERVICES: ServiceDetail[] = [
   {
@@ -181,7 +181,10 @@ export const AGENCY_TEAM: TeamMember[] = [
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
     experience: 'Ex-Stripe Infrastructure, YC Alumni Lead',
     displayOrder: 1,
-    isPublished: true
+    isPublished: true,
+    socialLinkedin: 'https://linkedin.com',
+    socialTwitter: 'https://twitter.com',
+    socialGithub: 'https://github.com'
   },
   {
     id: 'team-2',
@@ -192,7 +195,10 @@ export const AGENCY_TEAM: TeamMember[] = [
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
     experience: 'n8n Core Specialist, Enterprise Systems Consultant',
     displayOrder: 2,
-    isPublished: true
+    isPublished: true,
+    socialLinkedin: 'https://linkedin.com',
+    socialTwitter: 'https://twitter.com',
+    socialGithub: 'https://github.com'
   },
   {
     id: 'team-3',
@@ -203,7 +209,9 @@ export const AGENCY_TEAM: TeamMember[] = [
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80',
     experience: 'Awwwards Judge 2023-2024, Ex-Pentagram Digital',
     displayOrder: 3,
-    isPublished: true
+    isPublished: true,
+    socialLinkedin: 'https://linkedin.com',
+    socialTwitter: 'https://twitter.com'
   },
   {
     id: 'team-4',
@@ -214,7 +222,261 @@ export const AGENCY_TEAM: TeamMember[] = [
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
     experience: 'Ex-Growth Lead at FinTech Scaleups',
     displayOrder: 4,
-    isPublished: true
+    isPublished: true,
+    socialLinkedin: 'https://linkedin.com',
+    socialTwitter: 'https://twitter.com'
+  }
+];
+
+export const INITIAL_TEAM: TeamMember[] = AGENCY_TEAM;
+
+export const INITIAL_PROJECTS: PortfolioProject[] = [
+  {
+    id: 'proj-1',
+    slug: 'aethelgard-luxury-commerce',
+    title: 'Aethelgard High-Jewelry',
+    tagline: 'Headless Shopify Plus flagship with sub-second asset streaming and bespoke 3D ring visualizer.',
+    clientName: 'Aethelgard Heritage Fine Jewelry',
+    category: 'website',
+    subCategory: 'Headless Shopify Plus',
+    services: ['Headless Shopify Plus Architecture', 'Next.js 15 App Router', '3D Model WebGL Visualizer', 'Sub-Second Optimization'],
+    technologies: ['Shopify Plus', 'Next.js', 'TailwindCSS', 'Three.js', 'Algolia', 'Cloudflare Workers'],
+    coverImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=1400&q=80'
+    ],
+    summary: 'Aethelgard required a bespoke, ultra-fast digital flagship store that captured the physical elegance of their Parisian and Bond Street boutiques while eliminating international checkout drop-off.',
+    challenge: 'Standard Shopify themes resulted in sluggish 4.2-second load times for high-resolution diamond imagery, hurting ultra-high-ticket conversions ($12k+ AOV).',
+    solution: 'We engineered a fully decoupled headless architecture combining Next.js 15, edge-rendered image pipelines, localized multi-currency checkout, and a custom WebGL diamond configurator.',
+    results: [
+      { metric: '+142%', label: 'International Revenue', description: 'Surge in high-ticket global sales across EMEA and North America' },
+      { metric: '580ms', label: 'Average Page TTFB', description: 'Sub-second speed across all international markets on mobile' },
+      { metric: '3.8x', label: 'Cart-to-Checkout Conversion', description: 'Reduction in checkout friction on high-ticket custom rings' }
+    ],
+    externalUrl: 'https://aethelgard.com',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 1,
+    seoTitle: 'Aethelgard Luxury E-Commerce Case Study | Velora Labs',
+    seoDescription: 'Discover how Velora Labs engineered a headless Shopify Plus flagship for Aethelgard with sub-second performance.',
+    metaTitle: 'Aethelgard Luxury E-Commerce Case Study | Velora Labs',
+    metaDescription: 'Discover how Velora Labs engineered a headless Shopify Plus flagship for Aethelgard with sub-second performance.',
+    testimonial: {
+      quote: 'Velora Labs transformed our digital presence from a standard luxury catalog into an extraordinary conversion engine. Our international sales doubled within 90 days of launch.',
+      author: 'Eleonore de Saint-Germain',
+      role: 'Chief Brand Officer, Aethelgard Heritage'
+    },
+    publishedAt: '2025-01-15T00:00:00.000Z',
+    updatedAt: '2025-01-15T00:00:00.000Z'
+  },
+  {
+    id: 'proj-2',
+    slug: 'luminary-ai-lead-pipeline',
+    title: 'Luminary Capital Autonomous Deal Flow',
+    tagline: 'Self-healing n8n enterprise cluster and GoHighLevel CRM auto-triage handling $40M+ monthly pipeline.',
+    clientName: 'Luminary Private Equity & M&A Syndicate',
+    category: 'automation',
+    subCategory: 'Enterprise Workflow & AI Lead Triage',
+    services: ['n8n Self-Hosted Cluster', 'GoHighLevel Architecture', 'OpenAI Document Parsing', 'Bi-directional HubSpot Sync'],
+    technologies: ['n8n', 'GoHighLevel', 'OpenAI API', 'PostgreSQL', 'Twilio API', 'Slack API'],
+    coverImage: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1400&q=80'
+    ],
+    summary: 'Luminary was receiving hundreds of complex PDF financial pitches weekly. Analysts were losing 20+ hours each week manually keying deal metrics into their CRM and routing leads.',
+    challenge: 'Human triage delays resulted in a 48-hour response latency, causing warm founders to sign with competing PE funds.',
+    solution: 'We architected a resilient n8n workflow cluster powered by custom LLM document extraction that parses CIM PDFs, scores company EBITDA/ARR, and assigns partners within 45 seconds.',
+    results: [
+      { metric: '<45s', label: 'Inquiry-to-Partner Triage', description: 'Down from 48 hours to under a minute with complete financial dossier' },
+      { metric: '84%', label: 'Manual Admin Hours Saved', description: 'Analysts reclaimed over 80 hours monthly per team member' },
+      { metric: '99.99%', label: 'Pipeline Reliability', description: 'Zero dropped leads across over $120M in evaluated deal flow' }
+    ],
+    externalUrl: 'https://luminarype.com',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 2,
+    seoTitle: 'Luminary Capital AI Automation Case Study | Velora Labs',
+    seoDescription: 'How Velora Labs eliminated manual deal triage with autonomous n8n workflows and AI parsing.',
+    metaTitle: 'Luminary Capital AI Automation Case Study | Velora Labs',
+    metaDescription: 'How Velora Labs eliminated manual deal triage with autonomous n8n workflows and AI parsing.',
+    testimonial: {
+      quote: 'The automation infrastructure built by Velora Labs has given our investment team an insurmountable speed advantage. We analyze and offer on deals before our peers even open the email.',
+      author: 'Marcus Vance',
+      role: 'Managing Director, Luminary Capital Partners'
+    },
+    publishedAt: '2025-02-01T00:00:00.000Z',
+    updatedAt: '2025-02-01T00:00:00.000Z'
+  },
+  {
+    id: 'proj-3',
+    slug: 'strata-cloud-saas-platform',
+    title: 'Strata Cloud Multi-Tenant Observability',
+    tagline: 'Venture-backed B2B SaaS platform delivered from napkin to production in a 7-week sprint.',
+    clientName: 'Strata Cloud Technologies',
+    category: 'saas',
+    subCategory: 'Full-Stack Web Application',
+    services: ['React 19 & TypeScript Frontend', 'Node.js Microservices', 'Stripe Tiered Billing Engine', 'Multi-Tenant RBAC'],
+    technologies: ['React 19', 'TypeScript', 'Node.js', 'PostgreSQL', 'Redis', 'Docker', 'Stripe Billing'],
+    coverImage: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1400&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1400&q=80',
+      'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=1400&q=80'
+    ],
+    summary: 'Strata Cloud secured a $2.4M seed round and required a senior venture engineering partner to build their flagship Kubernetes cost optimization platform before their first major customer launch.',
+    challenge: 'A non-technical founder team needed production-grade multi-tenancy, enterprise role permissions, and seamless Stripe metered subscription billing within 8 weeks.',
+    solution: 'Velora Labs engineered the complete full-stack web application with strict TypeScript types, real-time metrics streaming, and an intuitive dark-mode dashboard.',
+    results: [
+      { metric: '7 Wks', label: 'Napkin to Live Production', description: 'Delivered 1 week ahead of enterprise contract launch deadline' },
+      { metric: '25k+', label: 'Concurrent Node Telemetry', description: 'Sub-50ms query response time across high-density telemetry data' },
+      { metric: '100%', label: 'Test & Type Coverage', description: 'Zero critical severity vulnerabilities upon external security audit' }
+    ],
+    externalUrl: 'https://stratacloud.io',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 3,
+    seoTitle: 'Strata Cloud SaaS Engineering Case Study | Velora Labs',
+    seoDescription: 'Explore how Velora Labs delivered an enterprise B2B SaaS platform in a record 7-week engineering sprint.',
+    metaTitle: 'Strata Cloud SaaS Engineering Case Study | Velora Labs',
+    metaDescription: 'Explore how Velora Labs delivered an enterprise B2B SaaS platform in a record 7-week engineering sprint.',
+    testimonial: {
+      quote: 'Velora Labs did in 7 weeks what our previous agency estimated would take 9 months. Their architectural cleanliness and attention to detail made our seed round an undeniable success.',
+      author: 'David Chen',
+      role: 'Founder & CEO, Strata Cloud'
+    },
+    publishedAt: '2025-02-10T00:00:00.000Z',
+    updatedAt: '2025-02-10T00:00:00.000Z'
+  },
+  {
+    id: 'proj-4',
+    slug: 'valkyrie-performance-growth',
+    title: 'Valkyrie Performance High-ROAS Engine',
+    tagline: 'Full-funnel paid media acquisition and dynamic CRO testing scaling from $40k to $380k monthly spend.',
+    clientName: 'Valkyrie Bio-Nutrition',
+    category: 'marketing',
+    subCategory: 'Paid Acquisition & Funnel CRO',
+    services: ['Google Search & Meta Ads Sprints', 'Dynamic Landing Page Engine', 'Server-Side CAPI Tracking', 'Klaviyo Retention Flows'],
+    technologies: ['Google Ads', 'Meta Ads Manager', 'Triple Whale', 'PostHog', 'Klaviyo', 'Next.js Dynamic Pages'],
+    coverImage: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1400&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=1400&q=80'
+    ],
+    summary: 'Valkyrie had hit a hard ceiling on Meta ads with declining ROAS. They needed a high-velocity creative testing protocol and high-converting customized landing pages.',
+    challenge: 'Rising CAC was eroding gross margins while generic Shopify landing pages suffered from high 68% bounce rates on mobile ad traffic.',
+    solution: 'We deployed 14 dynamic headless landing page variants optimized for specific search intent, configured server-side CAPI tracking, and launched multi-angle UGC creative sprints.',
+    results: [
+      { metric: '5.2x', label: 'Blended Acquisition ROAS', description: 'Maintained profitability while scaling spend by over 9x' },
+      { metric: '-54%', label: 'Customer Acquisition Cost', description: 'Sharp drop in blended CAC across Google and Meta ad platforms' },
+      { metric: '+88%', label: 'Subscriber Retention (LTV)', description: 'Boosted through automated post-purchase onboarding emails' }
+    ],
+    externalUrl: 'https://valkyriebio.com',
+    isFeatured: false,
+    isPublished: true,
+    displayOrder: 4,
+    seoTitle: 'Valkyrie Bio-Nutrition Growth Case Study | Velora Labs',
+    seoDescription: 'Learn how Velora Labs scaled Valkyrie Bio to 5.2x ROAS with dynamic landing pages and paid acquisition.',
+    metaTitle: 'Valkyrie Bio-Nutrition Growth Case Study | Velora Labs',
+    metaDescription: 'Learn how Velora Labs scaled Valkyrie Bio to 5.2x ROAS with dynamic landing pages and paid acquisition.',
+    testimonial: {
+      quote: 'Velora Labs is the first growth agency we’ve partnered with that truly understands unit economics. They don’t just buy ads — they rebuild the entire funnel for maximum conversion.',
+      author: 'Samantha Brooks',
+      role: 'VP of Growth, Valkyrie Nutrition'
+    },
+    publishedAt: '2025-02-18T00:00:00.000Z',
+    updatedAt: '2025-02-18T00:00:00.000Z'
+  }
+];
+
+export const INITIAL_CLIENTS: ClientPartner[] = [
+  {
+    id: 'client-1',
+    name: 'Aethelgard Fine Jewelry',
+    logo: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=120&q=80',
+    website: 'https://aethelgard.com',
+    description: 'European high-jewelry heritage house with international retail boutiques.',
+    category: 'client',
+    relationshipType: 'E-Commerce & Digital Flagship Partner',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 1,
+    seoTitle: 'Aethelgard Partner Profile | Velora Labs',
+    seoDescription: 'Velora Labs client partner profile for Aethelgard Fine Jewelry.',
+    metaTitle: 'Aethelgard Partner Profile | Velora Labs',
+    metaDescription: 'Velora Labs client partner profile for Aethelgard Fine Jewelry.',
+    testimonial: {
+      quote: 'Velora Labs engineered a luxury digital experience that matched the exacting standard of our physical boutiques.',
+      author: 'Eleonore de Saint-Germain',
+      role: 'Chief Brand Officer, Aethelgard'
+    },
+    linkedProjectSlugs: ['aethelgard-luxury-commerce']
+  },
+  {
+    id: 'client-2',
+    name: 'Luminary Capital',
+    logo: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=120&q=80',
+    website: 'https://luminarype.com',
+    description: 'Mid-market private equity syndicate managing high-volume deal evaluation.',
+    category: 'client',
+    relationshipType: 'Enterprise Automation & AI Infrastructure',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 2,
+    seoTitle: 'Luminary Capital Partner Profile | Velora Labs',
+    seoDescription: 'Velora Labs client partner profile for Luminary Capital.',
+    metaTitle: 'Luminary Capital Partner Profile | Velora Labs',
+    metaDescription: 'Velora Labs client partner profile for Luminary Capital.',
+    testimonial: {
+      quote: 'Our deal flow speed increased tenfold thanks to the automated pipelines architected by Velora Labs.',
+      author: 'Marcus Vance',
+      role: 'Managing Director, Luminary Capital'
+    },
+    linkedProjectSlugs: ['luminary-ai-lead-pipeline']
+  },
+  {
+    id: 'client-3',
+    name: 'Strata Cloud',
+    logo: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=120&q=80',
+    website: 'https://stratacloud.io',
+    description: 'Venture-backed Kubernetes observability and cost intelligence platform.',
+    category: 'client',
+    relationshipType: 'SaaS Engineering & Product Design Partner',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 3,
+    seoTitle: 'Strata Cloud Partner Profile | Velora Labs',
+    seoDescription: 'Velora Labs client partner profile for Strata Cloud.',
+    metaTitle: 'Strata Cloud Partner Profile | Velora Labs',
+    metaDescription: 'Velora Labs client partner profile for Strata Cloud.',
+    testimonial: {
+      quote: 'They built our flagship platform in 7 weeks. Flawless engineering and zero headaches.',
+      author: 'David Chen',
+      role: 'CEO, Strata Cloud'
+    },
+    linkedProjectSlugs: ['strata-cloud-saas-platform']
+  },
+  {
+    id: 'client-4',
+    name: 'Valkyrie Bio-Nutrition',
+    logo: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=120&q=80',
+    website: 'https://valkyriebio.com',
+    description: 'Direct-to-consumer performance nootropics and longevity formulations.',
+    category: 'client',
+    relationshipType: 'Paid Acquisition & Conversion Optimization',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 4,
+    seoTitle: 'Valkyrie Bio Partner Profile | Velora Labs',
+    seoDescription: 'Velora Labs client partner profile for Valkyrie Bio-Nutrition.',
+    metaTitle: 'Valkyrie Bio Partner Profile | Velora Labs',
+    metaDescription: 'Velora Labs client partner profile for Valkyrie Bio-Nutrition.',
+    testimonial: {
+      quote: 'Our customer acquisition cost dropped by over 50% within the first 6 weeks of testing their landing pages.',
+      author: 'Samantha Brooks',
+      role: 'VP of Growth, Valkyrie Nutrition'
+    },
+    linkedProjectSlugs: ['valkyrie-performance-growth']
   }
 ];
 

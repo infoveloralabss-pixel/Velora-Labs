@@ -44,10 +44,11 @@ export const Home: React.FC<HomeProps> = ({
         <HeroSmokeCanvas />
       </div>
 
-      {/* Background Subtle Ambience */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[600px] pointer-events-none opacity-25">
-        <div className="absolute top-20 left-1/4 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl"></div>
-        <div className="absolute top-40 right-1/4 w-96 h-96 bg-cyan-600/20 rounded-full blur-3xl"></div>
+      {/* Background Subtle Ambience with Multi-tone Chromatic Aura */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[650px] pointer-events-none opacity-30 select-none overflow-hidden will-change-transform">
+        <div className="absolute top-16 left-1/4 w-[420px] h-[420px] bg-indigo-600/35 rounded-full blur-[100px] animate-ambient-1 will-change-transform"></div>
+        <div className="absolute top-36 right-1/4 w-[420px] h-[420px] bg-cyan-500/25 rounded-full blur-[100px] animate-ambient-2 will-change-transform"></div>
+        <div className="absolute top-52 left-1/3 w-[340px] h-[340px] bg-purple-600/20 rounded-full blur-[90px] animate-ambient-3 will-change-transform"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-28 sm:space-y-36">
