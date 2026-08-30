@@ -12,7 +12,12 @@ import {
   Terminal,
   Activity,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  Building2,
+  Handshake,
+  Star,
+  Quote,
+  BadgeCheck
 } from 'lucide-react';
 import { PortfolioProject, ClientPartner } from '../../types';
 import { AGENCY_SERVICES, AGENCY_PROCESS } from '../../data/agencyData';
@@ -32,10 +37,23 @@ export const Home: React.FC<HomeProps> = ({
   openAIConsultant
 }) => {
   const [activePillar, setActivePillar] = useState<'website' | 'automation' | 'saas' | 'marketing'>('saas');
+  const [partnerCategory, setPartnerCategory] = useState<string>('all');
 
   const featuredProjects = projects.filter(p => p.isFeatured && p.isPublished).slice(0, 4);
-  const featuredClients = clients.filter(c => c.isPublished && c.isFeatured);
   const selectedPillarData = AGENCY_SERVICES.find(s => s.id === activePillar) || AGENCY_SERVICES[0];
+
+  const filteredPartners = clients.filter(c => {
+    if (!c.isPublished) return false;
+    if (partnerCategory === 'all') return true;
+    return c.category === partnerCategory;
+  });
+
+  const partnerCategories = [
+    { id: 'all', label: 'All Ecosystem' },
+    { id: 'technology_partner', label: 'Tech Alliances' },
+    { id: 'client', label: 'Enterprise Clients' },
+    { id: 'agency_partner', label: 'Agency Co-Builders' },
+  ];
 
   return (
     <div className="relative overflow-hidden pt-24 pb-20">
@@ -139,30 +157,158 @@ export const Home: React.FC<HomeProps> = ({
         </section>
 
         {/* ============================================================ */}
-        {/* SECTION 2: CLIENT & PARTNER TRUST MARQUEE */}
+        {/* SECTION 2: STRATEGIC PARTNERS, ENTERPRISE CLIENTS & ECOSYSTEM */}
         {/* ============================================================ */}
-        <section id="trust-section" className="space-y-6">
-          <div className="text-center">
-            <p className="text-xs uppercase font-mono tracking-widest text-neutral-400">
-              Trusted by High-Velocity Founders, Enterprise Franchises & Growth Syndicates
-            </p>
+        <section id="trust-section" className="space-y-8">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <div className="text-xs font-mono text-cyan-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <Handshake className="w-3.5 h-3.5" />
+                <span>// Strategic Alliances & Ecosystem</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white font-display">
+                Certified Partners & Enterprise Clients
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Category Filter Pills */}
+              <div className="flex flex-wrap items-center gap-1.5 bg-neutral-900/80 p-1.5 rounded-xl border border-neutral-800">
+                {partnerCategories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setPartnerCategory(cat.id)}
+                    className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                      partnerCategory === cat.id
+                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm font-semibold'
+                        : 'text-neutral-400 hover:text-white hover:bg-neutral-800/60'
+                    }`}
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => navigate('clients')}
+                className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-cyan-300 hover:text-white transition-colors cursor-pointer shrink-0"
+              >
+                <span>View Full Directory</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {featuredClients.map((client) => (
+          {/* Dynamic Partner Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredPartners.map((client) => (
               <div
                 key={client.id}
                 onClick={() => navigate('clients')}
-                className="cursor-pointer p-4 rounded-xl bg-neutral-900/40 hover:bg-neutral-900 border border-neutral-800/60 hover:border-neutral-700 transition-all duration-200 flex flex-col items-center justify-center text-center group"
+                className="cursor-pointer p-5 rounded-2xl bg-neutral-900/40 hover:bg-neutral-900/90 border border-neutral-800/80 hover:border-cyan-500/40 transition-all duration-300 flex flex-col justify-between space-y-4 group shadow-sm hover:shadow-cyan-950/20"
               >
-                <div className="font-display font-bold text-sm text-neutral-200 group-hover:text-white transition-colors">
-                  {client.name}
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="w-10 h-10 rounded-xl bg-neutral-950 border border-neutral-800 overflow-hidden flex items-center justify-center p-1 group-hover:border-cyan-500/30 transition-colors">
+                      {client.logo ? (
+                        <img src={client.logo} alt={client.name} className="w-full h-full object-cover rounded-lg" />
+                      ) : (
+                        <Building2 className="w-5 h-5 text-neutral-400" />
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {client.isFeatured && (
+                        <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[9px] font-mono flex items-center gap-0.5">
+                          <Star className="w-2.5 h-2.5 fill-amber-300" />
+                          <span>Featured</span>
+                        </span>
+                      )}
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-neutral-800 text-neutral-300 capitalize">
+                        {client.category.replace('_', ' ')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="font-display font-bold text-sm text-white group-hover:text-cyan-200 transition-colors">
+                      {client.name}
+                    </h3>
+                    <div className="text-[11px] font-mono text-cyan-400/90 mt-0.5">
+                      {client.relationshipType}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-neutral-400 line-clamp-2 leading-relaxed group-hover:text-neutral-300 transition-colors">
+                    {client.description}
+                  </p>
                 </div>
-                <div className="text-[10px] text-neutral-400 font-mono mt-0.5 truncate max-w-full">
-                  {client.relationshipType}
+
+                <div className="pt-3 border-t border-neutral-800/80 flex items-center justify-between text-xs text-neutral-400 group-hover:text-neutral-200">
+                  <span className="text-[11px] font-mono">
+                    {client.linkedProjectSlugs && client.linkedProjectSlugs.length > 0 ? 'Verified Case Study' : 'Active Alliance'}
+                  </span>
+                  <div className="flex items-center gap-1 text-cyan-400 font-medium text-[11px] group-hover:translate-x-0.5 transition-transform">
+                    <span>Partner Details</span>
+                    <ArrowUpRight className="w-3 h-3" />
+                  </div>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Testimonial Quote Spotlight Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-3 relative overflow-hidden">
+              <Quote className="w-8 h-8 text-neutral-800 absolute top-4 right-4" />
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <p className="text-xs sm:text-sm text-neutral-200 italic leading-relaxed relative z-10">
+                "Velora Labs is the first growth engineering partner that truly understands unit economics. They don’t just build code — they re-architected our entire revenue funnel for maximum conversion."
+              </p>
+              <div className="flex items-center justify-between pt-1">
+                <div>
+                  <div className="font-display font-bold text-xs text-white">Samantha Brooks</div>
+                  <div className="text-[11px] font-mono text-cyan-400">VP of Growth, Valkyrie Bio-Nutrition</div>
+                </div>
+                <button
+                  onClick={() => navigate('project-detail', 'valkyrie-performance-growth')}
+                  className="text-xs text-neutral-400 hover:text-white font-mono flex items-center gap-1 cursor-pointer"
+                >
+                  <span>Case Study</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-3 relative overflow-hidden">
+              <Quote className="w-8 h-8 text-neutral-800 absolute top-4 right-4" />
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <p className="text-xs sm:text-sm text-neutral-200 italic leading-relaxed relative z-10">
+                "Velora Labs is our secret weapon for technical delivery. We design high-concept brand strategy, and they engineer bulletproof web applications and automated backends without a hitch."
+              </p>
+              <div className="flex items-center justify-between pt-1">
+                <div>
+                  <div className="font-display font-bold text-xs text-white">Jonathan Sterling</div>
+                  <div className="text-[11px] font-mono text-cyan-400">Managing Partner, Apex Studio London</div>
+                </div>
+                <button
+                  onClick={() => navigate('clients')}
+                  className="text-xs text-neutral-400 hover:text-white font-mono flex items-center gap-1 cursor-pointer"
+                >
+                  <span>All Partners</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 

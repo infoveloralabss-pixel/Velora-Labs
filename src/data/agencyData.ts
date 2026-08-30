@@ -477,6 +477,138 @@ export const INITIAL_CLIENTS: ClientPartner[] = [
       role: 'VP of Growth, Valkyrie Nutrition'
     },
     linkedProjectSlugs: ['valkyrie-performance-growth']
+  },
+  {
+    id: 'partner-shopify',
+    name: 'Shopify Plus Partner Network',
+    logo: 'https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=120&q=80',
+    website: 'https://shopify.com/plus',
+    description: 'Certified ecosystem partnership for headless Hydrogen/Oxygen builds, high-volume checkout customization, and Shopify API integrations.',
+    category: 'technology_partner',
+    relationshipType: 'Certified Headless Commerce Partner',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 5,
+    seoTitle: 'Shopify Plus Ecosystem Partnership | Velora Labs',
+    seoDescription: 'Velora Labs certified Shopify Plus development and headless commerce alliance.',
+    metaTitle: 'Shopify Plus Ecosystem Partnership | Velora Labs',
+    metaDescription: 'Velora Labs certified Shopify Plus development and headless commerce alliance.',
+    testimonial: {
+      quote: 'Velora Labs pushes Shopify Hydrogen and custom checkout extensions to their architectural limits, delivering sub-second load times for enterprise brands.',
+      author: 'Ecosystem Engineering Lead',
+      role: 'Shopify Partner Program'
+    },
+    linkedProjectSlugs: ['aethelgard-luxury-commerce']
+  },
+  {
+    id: 'partner-stripe',
+    name: 'Stripe Verified Partner',
+    logo: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=120&q=80',
+    website: 'https://stripe.com/partners',
+    description: 'Specialized integration alliance for multi-currency billing, SaaS meter tracking, custom checkout flows, and Stripe Elements security.',
+    category: 'technology_partner',
+    relationshipType: 'Verified Billing & Infrastructure Partner',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 6,
+    seoTitle: 'Stripe Verified Partner | Velora Labs',
+    seoDescription: 'Velora Labs verified Stripe billing and payment infrastructure partnership.',
+    metaTitle: 'Stripe Verified Partner | Velora Labs',
+    metaDescription: 'Velora Labs verified Stripe billing and payment infrastructure partnership.',
+    testimonial: {
+      quote: 'Exceptional precision in handling complex recurring usage billing and enterprise fraud defense pipelines.',
+      author: 'Partner Architect',
+      role: 'Stripe Global Ecosystem'
+    },
+    linkedProjectSlugs: ['strata-cloud-saas-platform']
+  },
+  {
+    id: 'partner-make',
+    name: 'Make.com & Celonis Alliance',
+    logo: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=120&q=80',
+    website: 'https://make.com',
+    description: 'Enterprise workflow automation partner delivering complex multi-step webhook routing, CRM synchronizations, and autonomous data pipelines.',
+    category: 'technology_partner',
+    relationshipType: 'Enterprise Automation Partner',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 7,
+    seoTitle: 'Make.com Automation Partner | Velora Labs',
+    seoDescription: 'Velora Labs enterprise automation alliance with Make.com.',
+    metaTitle: 'Make.com Automation Partner | Velora Labs',
+    metaDescription: 'Velora Labs enterprise automation alliance with Make.com.',
+    testimonial: {
+      quote: 'Velora Labs designs resilient, self-healing automation architectures handling millions of mission-critical webhooks with zero data drops.',
+      author: 'Solutions Director',
+      role: 'Enterprise Integrations'
+    },
+    linkedProjectSlugs: ['luminary-ai-lead-pipeline']
+  },
+  {
+    id: 'partner-ai',
+    name: 'Google Gemini & Anthropic Ecosystem',
+    logo: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=120&q=80',
+    website: 'https://ai.google.dev',
+    description: 'Production AI engineering partnership implementing server-side model orchestration, multi-modal reasoning, and custom RAG vector architectures.',
+    category: 'technology_partner',
+    relationshipType: 'AI Model & Systems Partner',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 8,
+    seoTitle: 'AI Systems Partnership | Velora Labs',
+    seoDescription: 'Velora Labs Gemini & Anthropic enterprise AI integration partner.',
+    metaTitle: 'AI Systems Partnership | Velora Labs',
+    metaDescription: 'Velora Labs Gemini & Anthropic enterprise AI integration partner.',
+    testimonial: {
+      quote: 'Pioneering production-grade multi-agent architectures that turn generative AI into measurable business ROI.',
+      author: 'AI Solutions Architect',
+      role: 'Applied AI Ecosystem'
+    },
+    linkedProjectSlugs: ['luminary-ai-lead-pipeline', 'strata-cloud-saas-platform']
+  },
+  {
+    id: 'partner-apex',
+    name: 'Apex Studio London',
+    logo: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=120&q=80',
+    website: 'https://apexstudio.co.uk',
+    description: 'Top-tier London creative consultancy partnering with Velora Labs as their dedicated full-stack engineering and custom SaaS development engine.',
+    category: 'agency_partner',
+    relationshipType: 'Strategic Co-Engineering Partner',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 9,
+    seoTitle: 'Apex Studio Collaboration | Velora Labs',
+    seoDescription: 'Velora Labs engineering partnership with Apex Studio London.',
+    metaTitle: 'Apex Studio Collaboration | Velora Labs',
+    metaDescription: 'Velora Labs engineering partnership with Apex Studio London.',
+    testimonial: {
+      quote: 'Velora Labs is our secret weapon. We handle high-concept brand strategy, and they engineer bulletproof web applications and automated backends without a hitch.',
+      author: 'Jonathan Sterling',
+      role: 'Managing Partner, Apex Studio'
+    },
+    linkedProjectSlugs: ['aethelgard-luxury-commerce']
+  },
+  {
+    id: 'partner-kinetix',
+    name: 'Kinetix Venture Foundry',
+    logo: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=120&q=80',
+    website: 'https://kinetixventures.io',
+    description: 'European technology accelerator and venture studio building scalable software MVPs for early-stage portfolio startups.',
+    category: 'enterprise',
+    relationshipType: 'Venture Studio Technical Co-Builder',
+    isFeatured: true,
+    isPublished: true,
+    displayOrder: 10,
+    seoTitle: 'Kinetix Venture Foundry Partner | Velora Labs',
+    seoDescription: 'Velora Labs venture foundry and technical incubation partner.',
+    metaTitle: 'Kinetix Venture Foundry Partner | Velora Labs',
+    metaDescription: 'Velora Labs venture foundry and technical incubation partner.',
+    testimonial: {
+      quote: 'Having Velora Labs as our technical execution partner allows our portfolio founders to launch venture-grade products in weeks instead of quarters.',
+      author: 'Elena Rostova',
+      role: 'Partner, Kinetix Ventures'
+    },
+    linkedProjectSlugs: ['strata-cloud-saas-platform']
   }
 ];
 
